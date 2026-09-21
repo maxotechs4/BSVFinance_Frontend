@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'IBM Plex Sans', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}
+
+
+
+/* Hidden on screen at all times; only shown for print (see @media print below).
+   Used by MemberProfilePage to swap the on-screen dashboard view for the
+   formal MemberPrintDocument when the page is printed. */
+.print-only {
+  display: none;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* The print-only document keeps its own brand colors even though the rule
+     below forces the rest of the page to plain black-on-white — these
+     selectors are more specific than `body *`, so they win. */
+  .print-doc-accent-red { color: #B4453A !important; }
+  .print-doc-accent-teal { color: #15433D !important; }
+  .print-doc-accent-green { color: #3C8C5E !important; }
+
+
+  @page {
+    size: landscape;
+    margin: 12mm;
+  }
+
+  html, body {
+    background: #fff !important;
+  }
+
+  body, body * {
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  table, th, td {
+    border-color: #999 !important;
+  }
+
+  .MuiTableContainer-root {
+    overflow-x: visible !important;
+    width: 100% !important;
+  }
+
+  .MuiTableContainer-root table {
+    table-layout: auto !important;
+    font-size: 10px !important;
+    width: 100% !important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+}
