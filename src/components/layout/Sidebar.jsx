@@ -88,7 +88,7 @@ export default function Sidebar({ open, variant = 'permanent', onClose }) {
         {showLabels && (
           <Box sx={{ overflow: 'hidden' }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.1, color: '#FFFFFF' }}>
-              Anbu Foundation
+              BSV Finance
             </Typography>
           </Box>
         )}
