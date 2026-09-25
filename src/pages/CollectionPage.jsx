@@ -431,7 +431,8 @@ export default function CollectionPage() {
     headMember: m.headMember,
     headMemberId: m.headMember ? null : (m.headMemberId || null),
     centerPlace: m.centerPlace,
-    centerCode: m.centerCode,
+    groupId: m.groupId,
+    groupName: m.groupName,
     phoneNumber: m.phoneNumber,
     alternatePhoneNumber: m.alternatePhoneNumber || null,
     address: m.address,
@@ -1147,7 +1148,7 @@ export default function CollectionPage() {
         <TextField
           fullWidth
           size="small"
-          placeholder="Search by name, phone number, center code, or member ID..."
+          placeholder="Search by name, phone number, group Id, or member ID..."
           value={searchTerm}
           onChange={(e) =>
             setSearchTerm(
@@ -1227,16 +1228,16 @@ export default function CollectionPage() {
                       }
                     >
                       {result.type ===
-                      'GROUP' ? (
-                        <ListItemText
-                          primary={`${result.headName}'s Group${
-                            result.centerCode
-                              ? ` · Center ${result.centerCode}`
-                              : ''
-                          }`}
-                          secondary={`Members: ${(result.memberNames || []).join(', ')}`}
-                        />
-                      ) : (
+'GROUP' ? (
+  <ListItemText
+    primary={`${result.headName}'s Group${
+      result.groupId
+        ? ` · Group ${result.groupId}`
+        : ''
+    }`}
+    secondary={`Members: ${(result.memberNames || []).join(', ')}`}
+  />
+) : (
                         <ListItemText
                           primary={`${result.memberName} (${result.memberCode})`}
                           secondary={[

@@ -6,9 +6,12 @@ import { createTheme } from '@mui/material/styles';
  * tabular monospace figures for money so columns of rupee amounts line up cleanly.
  */
 const palette = {
-  teal900: '#15433D',
-  teal700: '#1F584F',
-  teal300: '#9FCBBE',
+  teal900: '#060606',
+  // teal900: '#15433D',
+  // teal700: '#1F584F',
+  teal700: '#E31E24',
+  // teal300: '#9FCBBE',
+  teal300: '#e8d019',
   amber: '#C98A3D',
   amberDark: '#854F0B',
   green: '#3C8C5E',

@@ -15,6 +15,7 @@ import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import TaskAltRoundedIcon from '@mui/icons-material/TaskAltRounded';
 import UploadFileRoundedIcon from '@mui/icons-material/UploadFileRounded';
+import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded';
 import TableViewRoundedIcon from '@mui/icons-material/TableViewRounded';
@@ -75,8 +76,9 @@ export default function MemberProfilePage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
-  // Uploading a nominee image is Admin-only — Staff/Viewer only get to view/download
-  // (enforced here for the UI, and again on the backend via SecurityConfig).
+  // Uploading a nominee image or the member's own photo is Admin-only —
+  // Staff/Viewer only get to view/download (enforced here for the UI, and
+  // again on the backend via SecurityConfig).
   const isAdmin = user?.role === 'ADMIN';
 
   const [member, setMember] = useState(null);
@@ -97,8 +99,13 @@ export default function MemberProfilePage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
-  // Optional photo shown on the printed member document — reuses the first
-  // uploaded nominee image, since that's the only photo storage this app has.
+  // Member's own passport-size photo, used on the printed document.
+  const photoInputRef = useRef(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  // Object URL for the member's own photo, shown on the printed member
+  // document. Fetched from the dedicated photo endpoint (not the nominee
+  // image gallery — those are separate).
   const [printPhotoUrl, setPrintPhotoUrl] = useState(null);
 
   const load = useCallback(async () => {
@@ -133,22 +140,17 @@ export default function MemberProfilePage() {
     }
   }, [id]);
 
-  // Fetch the first nominee image (if any) as an object URL, for the optional
+  // Fetch the member's own photo (if uploaded) as an object URL, for the
   // photo box on the printed document. Cleaned up whenever it changes/unmounts
   // so we don't leak object URLs.
   useEffect(() => {
-    if (!member?.nomineeImageCount) {
+    if (!member?.hasMemberPhoto) {
       setPrintPhotoUrl(null);
       return;
     }
     let cancelled = false;
     let objectUrl = null;
-    memberService.getNomineeImages(id)
-      .then((images) => {
-        const first = images?.[0];
-        if (!first || cancelled) return null;
-        return memberService.getNomineeImageBlob(id, first.id);
-      })
+    memberService.getMemberPhotoBlob(id)
       .then((blob) => {
         if (!blob || cancelled) return;
         objectUrl = URL.createObjectURL(blob);
@@ -159,7 +161,7 @@ export default function MemberProfilePage() {
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [id, member?.nomineeImageCount]);
+  }, [id, member?.hasMemberPhoto]);
 
   const handleSavePayment = async (payload) => {
     setSubmitting(true);
@@ -243,6 +245,29 @@ export default function MemberProfilePage() {
     }
   };
 
+  // "Upload Photo" — the member's own passport-size photo, shown on the
+  // printed Loan Application. Separate from the nominee image gallery above.
+  const handlePhotoUploadClick = () => {
+    photoInputRef.current?.click();
+  };
+
+  const handlePhotoFileSelected = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    try {
+      await memberService.uploadMemberPhoto(id, file);
+      showSuccess('Photo uploaded');
+      load();
+    } catch (err) {
+      showError(extractErrorMessage(err));
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   // Called when the nominee-image gallery dialog closes, so "View Image (N)"
   // is guaranteed correct right away even if NomineeImageDialog doesn't (yet)
   // report deletions as they happen — see refreshMemberSilently for the
@@ -272,7 +297,8 @@ export default function MemberProfilePage() {
       body: [
         ['Name', member.name, 'Member Code', member.memberCode],
         ['Phone Number', member.phoneNumber || '-', 'Status', member.status],
-        ['Center Place', member.centerPlace || '-', 'Center Code', member.centerCode || '-'],
+        ['Center Place', member.centerPlace || '-', 'Group ID', member.groupId || '-'],
+        ['Group Name', member.groupName || '-', '', ''],
         ['Member Type', member.headMember ? 'Head Member' : 'Regular Member', 'Join Date', formatDate(member.joinDate)],
         ['Weekly Amount', formatCurrency(member.weeklyAmount), 'Credit Balance', formatCurrency(member.creditBalance)],
         ['Total Payments', String(payments.length), 'Outstanding Balance', formatCurrency(member.totalBalance)],
@@ -314,7 +340,8 @@ export default function MemberProfilePage() {
       { Field: 'Phone Number', Value: member.phoneNumber || '-' },
       { Field: 'Status', Value: member.status },
       { Field: 'Center Place', Value: member.centerPlace || '-' },
-      { Field: 'Center Code', Value: member.centerCode || '-' },
+      { Field: 'Group ID', Value: member.groupId || '-' },
+      { Field: 'Group Name', Value: member.groupName || '-' },
       { Field: 'Member Type', Value: member.headMember ? 'Head Member' : 'Regular Member' },
       { Field: 'Join Date', Value: formatDate(member.joinDate) },
       { Field: 'Weekly Amount', Value: member.weeklyAmount },
@@ -381,7 +408,7 @@ export default function MemberProfilePage() {
             </Typography>
             {member.headMember && <Chip label="HEAD MEMBER" color="warning" size="small" />}
           </Box>
-          <Chip label={member.centerCode} size="small" sx={{ fontFamily: moneyFontFamily }} />
+          <Chip label={member.groupId} size="small" sx={{ fontFamily: moneyFontFamily }} />
           <Chip
             label={member.status}
             size="small"
@@ -418,11 +445,35 @@ export default function MemberProfilePage() {
           </Box>
         </Box>
 
-        {/* Line 2: Upload Image, bottom-right — Admin-only. Staff/Viewer can still
-            view and download nominee images from the Nominee section below, but
-            cannot upload (enforced here and again on the backend). */}
+        {/* Line 2: Upload Photo / Upload Image, bottom-right — Admin-only. Staff/Viewer can
+            still view and download nominee images from the Nominee section below, but
+            cannot upload either (enforced here and again on the backend). */}
         {isAdmin && (
-          <Box className="no-print" sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+          <Box className="no-print" sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
+            {/* Member's own photo — shown on the printed Loan Application */}
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handlePhotoFileSelected}
+            />
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<PhotoCameraRoundedIcon />}
+              disabled={uploadingPhoto}
+              onClick={handlePhotoUploadClick}
+              sx={{
+                color: '#2E7D32',
+                borderColor: '#2E7D32',
+                '&:hover': { borderColor: '#1B5E20', backgroundColor: 'rgba(46, 125, 50, 0.04)' },
+              }}
+            >
+              {uploadingPhoto ? 'Uploading...' : member.hasMemberPhoto ? 'Replace Photo' : 'Upload Photo'}
+            </Button>
+
+            {/* Nominee proof image(s) — separate gallery, not shown on the print page */}
             <input
               ref={fileInputRef}
               type="file"
@@ -430,7 +481,7 @@ export default function MemberProfilePage() {
               hidden
               onChange={handleFileSelected}
             />
-                       <Button
+            <Button
               variant="outlined"
               size="small"
               startIcon={<UploadFileRoundedIcon />}
@@ -544,7 +595,10 @@ export default function MemberProfilePage() {
                 <DetailItem label="Center Place" value={member.centerPlace} />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <DetailItem label="Center Code" value={member.centerCode || '-'} />
+                <DetailItem label="Group ID" value={member.groupId || '-'} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <DetailItem label="Group Name" value={member.groupName || '-'} />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <DetailItem label="Member Type" value={member.headMember ? 'Head Member' : 'Regular Member'} />

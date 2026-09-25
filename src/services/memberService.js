@@ -57,6 +57,22 @@ export const memberService = {
   // (SecurityConfig returns 403 for Staff/Viewer).
   deleteNomineeImage: (id, imageId) =>
     apiClient.delete(`/members/${id}/nominee-images/${imageId}`).then((res) => res.data),
- 
+  
+  // Member profile "Upload Photo" button (Admin-only — Staff/Viewer get a 403 from the
+  // backend): sets/replaces the member's own passport-size photo, used on the print page.
+  uploadMemberPhoto: (id, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient
+      .post(`/members/${id}/photo`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .then((res) => res.data.data);
+  },
+
+  // Fetches the member's photo as a blob (for the print page's <img> object URL).
+  getMemberPhotoBlob: (id) =>
+    apiClient.get(`/members/${id}/photo`, { responseType: 'blob' }).then((res) => res.data),
+
+  // Admin-only: removes the member's photo.
+  deleteMemberPhoto: (id) => apiClient.delete(`/members/${id}/photo`).then((res) => res.data),
 };
  

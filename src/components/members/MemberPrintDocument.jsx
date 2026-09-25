@@ -1,6 +1,6 @@
 import { Box, Typography, GlobalStyles } from '@mui/material';
 import logo from '../../assets/logo.webp';
-import { formatCurrency, formatDate, weekdayLabel } from '../../utils/formatters';
+import { formatCurrency, formatDate } from '../../utils/formatters';
 
 const BORDER = '1px solid #cfcfcf';
 const LABEL_COLOR = '#6b6b6b';
@@ -30,17 +30,17 @@ function Cell({ label, value, last }) {
       sx={{
         flex: 1,
         minWidth: 0,
-        p: '9px 14px',
+                p: '5px 10px',
         borderRight: last ? 'none' : BORDER,
       }}
     >
       <Typography
         sx={{
-          fontSize: 9.5,
+          fontSize: 8.5,
           color: LABEL_COLOR,
           textTransform: 'uppercase',
           letterSpacing: 0.4,
-          lineHeight: 1.2,
+          lineHeight: 1.1,
           fontWeight: 600,
         }}
       >
@@ -48,12 +48,13 @@ function Cell({ label, value, last }) {
       </Typography>
       <Typography
         sx={{
-          fontSize: 14.5,
+          fontSize: 12,
           fontWeight: 500,
           wordBreak: 'break-word',
-          lineHeight: 1.4,
-          mt: 0.3,
+          lineHeight: 1.25,
+          mt: 0.15,
         }}
+      
       >
         {value || '-'}
       </Typography>
@@ -88,55 +89,127 @@ function SectionTitle({ children }) {
   );
 }
 
-// Renders a set of mutually-exclusive options (e.g. "Single / Married /
-// Divorced") with a strikethrough over every option that does NOT match the
-// selected value — mirroring how these are hand-struck on the paper form.
-// If no value is set yet, nothing is struck through.
-function StruckOptions({ options, value }) {
+// ---------- Loan / EMI repayment schedule ----------
+// Mirrors the printed "Loan Card / Repayment Schedule - Group-wise" sheet:
+// a details header (branch, group, officer, amount, dates, rate) followed
+// by a 23-row-style EMI demand vs. collection grid.
+//
+// Expects member.loanSchedule as an array of:
+// {
+//   installmentNo, demandDate,
+//   demandPrincipal, demandInterest, demandTotal,
+//   collectedPrincipal, collectedInterest, collectedTotal,
+//   collectionDate, receiptNo,
+// }
+const SCHEDULE_BORDER = '1px solid #999';
+
+function ScheduleHeaderCell({ children, wide, colSpanCells = 1, flexOverride }) {
   return (
-    <>
-      {options.map((opt, i) => (
-        <span key={opt.value}>
-          {i > 0 && ' / '}
-          <span style={{ textDecoration: value && value !== opt.value ? 'line-through' : 'none', opacity: value && value !== opt.value ? 0.45 : 1 }}>
-            {opt.label}
-          </span>
-        </span>
-      ))}
-    </>
+    <Box
+      sx={{
+        flex: flexOverride ?? (wide ? 2 * colSpanCells : colSpanCells),
+        minWidth: 0,
+        border: SCHEDULE_BORDER,
+        borderLeft: 'none',
+        borderTop: 'none',
+        p: '4px 3px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <Typography sx={{ fontSize: 8.5, fontWeight: 700, lineHeight: 1.15 }}>
+        {children}
+      </Typography>
+    </Box>
   );
 }
 
-const MARRIAGE_STATUS_OPTIONS = [
-  { value: 'SINGLE', label: 'Single' },
-  { value: 'MARRIED', label: 'Married' },
-  { value: 'DIVORCED', label: 'Divorced' },
-];
+function ScheduleCell({ children, wide, align = 'center' }) {
+  return (
+    <Box
+      sx={{
+        flex: wide ? 2 : 1,
+        minWidth: 0,
+        border: SCHEDULE_BORDER,
+        borderLeft: 'none',
+        borderTop: 'none',
+        p: '3px 4px',
+        textAlign: align,
+      }}
+    >
+      <Typography sx={{ fontSize: 9, lineHeight: 1.2 }}>{children ?? ''}</Typography>
+    </Box>
+  );
+}
 
-const HOUSE_OPTIONS = [
-  { value: 'OWN', label: 'Own' },
-  { value: 'RENT', label: 'Rent' },
-];
+function LoanScheduleTable({ schedule }) {
+  const rows = schedule || [];
+
+  const totals = rows.reduce(
+    (acc, r) => ({
+      principal: acc.principal + (Number(r.demandPrincipal) || 0),
+      interest: acc.interest + (Number(r.demandInterest) || 0),
+      total: acc.total + (Number(r.demandTotal) || 0),
+    }),
+    { principal: 0, interest: 0, total: 0 }
+  );
+
+  return (
+    <Box sx={{ border: SCHEDULE_BORDER, borderRight: 'none', borderBottom: 'none', mt: 0.5 }}>
+      {/* Group header: EMI Demand vs EMI Collection */}
+      <Box sx={{ display: 'flex' }}>
+        <ScheduleHeaderCell>S.No</ScheduleHeaderCell>
+                <ScheduleHeaderCell flexOverride={5} sx={{ borderRight: '2px solid #333' }}>EMI Demand</ScheduleHeaderCell>
+        <ScheduleHeaderCell wide>Collection Date</ScheduleHeaderCell>
+        <ScheduleHeaderCell>Receipt No</ScheduleHeaderCell>
+        <ScheduleHeaderCell wide>Officer Signature</ScheduleHeaderCell>
+      </Box>
+      {/* Column header row */}
+      <Box sx={{ display: 'flex' }}>
+        <ScheduleHeaderCell>{''}</ScheduleHeaderCell>
+        <ScheduleHeaderCell wide>Demand Date</ScheduleHeaderCell>
+        <ScheduleHeaderCell>Principal</ScheduleHeaderCell>
+        <ScheduleHeaderCell>Interest</ScheduleHeaderCell>
+        <ScheduleHeaderCell>Total</ScheduleHeaderCell>
+        <ScheduleHeaderCell wide>{''}</ScheduleHeaderCell>
+        <ScheduleHeaderCell>{''}</ScheduleHeaderCell>
+        <ScheduleHeaderCell wide>{''}</ScheduleHeaderCell>
+      </Box>
+
+      {rows.map((r, i) => (
+        <Box key={r.installmentNo ?? i} sx={{ display: 'flex' }}>
+          <ScheduleCell>{r.installmentNo ?? i + 1}</ScheduleCell>
+          <ScheduleCell wide>{formatDate(r.demandDate)}</ScheduleCell>
+          <ScheduleCell align="right">{''}</ScheduleCell>
+          <ScheduleCell align="right">{''}</ScheduleCell>
+          <ScheduleCell align="right">{''}</ScheduleCell>
+          <ScheduleCell wide>{''}</ScheduleCell>
+          <ScheduleCell>{''}</ScheduleCell>
+          <ScheduleCell wide>{''}</ScheduleCell>
+        </Box>
+      ))}
+
+      {/* Totals row */}    
+      <Box sx={{ display: 'flex' }}>
+        <ScheduleCell wide align="right">Total:</ScheduleCell>
+        <ScheduleCell>{''}</ScheduleCell>
+        <ScheduleCell align="right">{''}</ScheduleCell>
+        <ScheduleCell align="right">{''}</ScheduleCell>
+        <ScheduleCell align="right">{''}</ScheduleCell>
+        <ScheduleCell wide>{''}</ScheduleCell>
+        <ScheduleCell>{''}</ScheduleCell>
+        <ScheduleCell wide>{''}</ScheduleCell>
+      </Box>
+    </Box>
+  );
+}
 
 export default function MemberPrintDocument({ member, photoUrl }) {
   if (!member) return null;
 
-  const hasNominee = Boolean(member.nomineeName);
-
-  // Most members don't have a separately recorded permanent address — default
-  // to the current address (both boxes show the same text) unless a distinct
-  // one has actually been entered.
-  const permanentAddress = member.permanentAddress || member.address;
-
-  // Father/Husband label follows whichever relation was chosen on the form.
-  const fatherHusbandLabel =
-    member.fatherOrHusbandRelation === 'HUSBAND' ? "Husband's Name"
-      : member.fatherOrHusbandRelation === 'FATHER' ? "Father's Name"
-      : 'Father / Husband';
-
-  const isMonthly = member.paymentFrequency === 'MONTHLY';
-  const installmentLabel = isMonthly ? 'Monthly Amount' : 'Weekly Amount';
-  const termLabel = isMonthly ? 'Total Months' : 'Total Weeks';
+  const hasLoanSchedule = Array.isArray(member.loanSchedule) && member.loanSchedule.length > 0;
 
   return (
     <Box className="print-doc" sx={{ maxWidth: '760px', mx: 'auto', p: 2, fontFamily: 'inherit' }}>
@@ -145,104 +218,84 @@ export default function MemberPrintDocument({ member, photoUrl }) {
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, pb: 1.5, borderBottom: '2px solid #222' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: 100 }}>
-          <Box component="img" src={logo} alt="Anbu Foundation logo" sx={{ width: 54, height: 54, objectFit: 'contain', flexShrink: 0 }} />
+          <Box component="img" src={logo} alt="BSV Finance logo" sx={{ width: 54, height: 54, objectFit: 'contain', flexShrink: 0 }} />
           <Typography className="print-doc-accent-teal" sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1, lineHeight: 1.2 }}>
-            FOUNDATION
+            FINANCE
           </Typography>
         </Box>
 
         <Box sx={{ flex: 1, textAlign: 'center', pt: 0.5 }}>
           <Typography className="print-doc-accent-red" sx={{ fontSize: 24, fontWeight: 700, fontFamily: 'serif', lineHeight: 1.15 }}>
-            ANBU FOUNDATION
+            BSV FINANCE
           </Typography>
           <Typography sx={{ fontSize: 10, color: LABEL_COLOR, mt: 0.5 }}>
             23/17D, Jonah Complex, Sinclair Street, Marthandam. PIN-629167
           </Typography>
         </Box>
+
+        {/* Member's passport-size photo, top-right corner of the header */}
+        <Box
+          sx={{
+            width: 90,
+            height: 100,
+            flexShrink: 0,
+            border: '1px solid #999',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            bgcolor: '#fafafa',
+          }}
+        >
+          {photoUrl ? (
+            <Box
+              component="img"
+              src={photoUrl}
+              alt={`${member.name}'s photo`}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <Typography sx={{ fontSize: 8, color: LABEL_COLOR, textAlign: 'center', px: 0.5 }}>
+              Photo
+            </Typography>
+          )}
+        </Box>
       </Box>
 
-      <Typography
-        className="print-doc-accent-green"
-        sx={{ fontSize: 16, fontWeight: 700, textAlign: 'center', mt: 2, mb: 1.5, letterSpacing: 0.5 }}
-      >
-        LOAN APPLICATION
-      </Typography>
-
-      {/* Personal details */}
-      <Box sx={{ border: BORDER, borderRadius: 1.5, overflow: 'hidden' }}>
-        <Row cells={[
-          { label: 'Branch Name', value: '' },
-          { label: 'Branch Number', value: '' },
-          { label: 'Date', value: formatDate(new Date().toISOString()) },
-        ]} />
-        <Row cells={[
-          { label: 'Customer I.D', value: member.memberCode },
-          { label: 'Center No', value: member.centerCode },
-          { label: 'Place', value: member.centerPlace },
-        ]} />
-        <Row cells={[
-          { label: 'Full Name', value: member.name },
-          { label: 'Head Member', value: member.headMember ? 'Yes' : 'No' },
-        ]} />
-        <Row cells={[
-          { label: fatherHusbandLabel, value: member.fatherOrHusbandName },
-        ]} />
-        <Row cells={[
-          { label: 'Gender', value: member.gender === 'MALE' ? 'Male' : member.gender === 'FEMALE' ? 'Female' : '-' },
-          { label: 'Marriage Status', value: <StruckOptions options={MARRIAGE_STATUS_OPTIONS} value={member.marriageStatus} /> },
-          { label: 'House', value: <StruckOptions options={HOUSE_OPTIONS} value={member.house} /> },
-        ]} />
-        <Row cells={[
-          { label: 'Date of Birth', value: formatDate(member.dateOfBirth) },
-          { label: 'Phone No.', value: member.phoneNumber },
-          { label: 'Alternate Phone', value: member.alternatePhoneNumber },
-        ]} />
-        <Row cells={[
-          { label: 'Weekday', value: member.weekday ? weekdayLabel(member.weekday) : '-' },
-          { label: 'Join Date', value: formatDate(member.joinDate) },
-        ]} />
-        <Row cells={[
-          { label: 'Aadhar No', value: member.aadhaarNumber },
-          { label: 'PAN No', value: member.panNumber },
-          { label: 'Voter ID', value: member.voterId },
-        ]} />
-        <Row cells={[
-          { label: 'Smart Card No', value: member.smartCardNumber },
-          { label: 'Purpose of Loan', value: member.purposeOfLoan },
-        ]} />
-        <Row cells={[
-          { label: 'Address', value: member.address },
-        ]} />
-        <Row cells={[
-          { label: 'Permanent Address', value: permanentAddress },
-        ]} lastRow={!member.notes} />
-        {member.notes && (
-          <Row cells={[
-            { label: 'Notes', value: member.notes },
-          ]} lastRow />
-        )}
-      </Box>
-
-      {/* Nominee details */}
-      {hasNominee && (
+      {/* Loan details */}
+      {hasLoanSchedule && (
         <>
-          <SectionTitle>Nominee Details</SectionTitle>
-          <Box sx={{ border: BORDER, borderRadius: 1.5, overflow: 'hidden' }}>
+          <SectionTitle>Loan Card / Repayment Schedule - Group-wise</SectionTitle>
+
+          <Box sx={{ border: BORDER, borderRadius: 1.5, overflow: 'hidden', mt: 1 }}>
             <Row cells={[
-              { label: 'Name', value: member.nomineeName },
-              { label: 'Relationship', value: member.nomineeRelation },
-              { label: 'Gender', value: member.nomineeGender === 'MALE' ? 'Male' : member.nomineeGender === 'FEMALE' ? 'Female' : '-' },
+              { label: 'Branch Name', value: 'Marthandam' },
+              { label: 'Place Name', value: member.centerPlace },
             ]} />
             <Row cells={[
-              { label: 'Phone Number', value: member.nomineePhoneNumber },
-              { label: 'Date of Birth', value: formatDate(member.nomineeDateOfBirth) },
+              { label: 'Group Name', value: member.groupName },
+              { label: 'Group ID', value: member.groupId },
             ]} />
             <Row cells={[
-              { label: 'Aadhar No', value: member.nomineeAadhaar },
-              { label: 'PAN No', value: member.nomineePan },
-              { label: 'Voter ID', value: member.nomineeVoterId },
-            ]} lastRow />
+              { label: 'Term Period', value: ''},
+              { label: 'Due Date', value: member.joinDate ? Number(member.joinDate.split('-')[2]) : '' },
+            ]} />
+            <Row cells={[
+              { label: 'Repayment Date', value: formatDate(member.joinDate) },
+              { label: 'Loan Staff Name', value: member.staffMemberName },
+            ]} />
+            <Row cells={[
+              { label: 'Total Amount', value: formatCurrency(member.loanAmount) },
+              { label: 'Resource Date', value: '' },
+            ]} />
+            <Row cells={[
+              { label: 'Type of Loan', value: '' },
+              { label: 'Interest Rate (% p.a.)', value: member.interestPercentage },
+            ]} />
+           
           </Box>
+
+          <LoanScheduleTable schedule={member.loanSchedule} />
         </>
       )}
     </Box>

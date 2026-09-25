@@ -9,16 +9,15 @@ import {
   Typography,
   InputAdornment,
   IconButton,
-  Avatar,
   CircularProgress,
   Alert,
 } from '@mui/material';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
-import AccountBalanceRoundedIcon from '@mui/icons-material/AccountBalanceRounded';
+// import AccountBalanceRoundedIcon from '@mui/icons-material/AccountBalanceRounded';
 import { useAuth } from '../hooks/useAuth';
 import { extractErrorMessage } from '../services/apiClient';
-
+import logo from '../assets/logo.webp';
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -60,11 +59,14 @@ export default function LoginPage() {
     >
       <Paper elevation={0} sx={{ p: 4, width: 400, border: '1px solid', borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-          <Avatar sx={{ bgcolor: 'primary.main', width: 52, height: 52, mb: 1.5 }}>
-            <AccountBalanceRoundedIcon />
-          </Avatar>
+                    <Box
+            component="img"
+            src={logo}
+            alt="BSV Finance logo"
+            sx={{ width: 64, height: 64, objectFit: 'contain', mb: 1.5 }}
+          />
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            Anbu Foundation
+            BSV Finance
           </Typography>
         </Box>
 

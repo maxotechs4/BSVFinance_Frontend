@@ -35,7 +35,7 @@ body {
      below forces the rest of the page to plain black-on-white — these
      selectors are more specific than `body *`, so they win. */
   .print-doc-accent-red { color: #B4453A !important; }
-  .print-doc-accent-teal { color: #15433D !important; }
+  .print-doc-accent-teal { color: #C98A3D !important; }
   .print-doc-accent-green { color: #3C8C5E !important; }
 
 

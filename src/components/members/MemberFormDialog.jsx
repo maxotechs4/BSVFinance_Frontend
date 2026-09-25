@@ -27,9 +27,7 @@ const LOAN_PLAN_OPTIONS = [
 ];
 
 const FIELD_TAB_MAP = {
-  memberCode: 0, name: 0, headMemberId: 0, centerPlace: 0, phoneNumber: 0, alternatePhoneNumber: 0,
-  weeklyAmount: 0, loanPlan: 0, address: 0, joinDate: 0, notes: 0,
-  memberCode: 0, name: 0, headMemberId: 0, centerPlace: 0, centerCode: 0, phoneNumber: 0, alternatePhoneNumber: 0,
+  memberCode: 0, name: 0, headMemberId: 0, centerPlace: 0, groupId: 0, groupName: 0, phoneNumber: 0, alternatePhoneNumber: 0,
   weeklyAmount: 0, loanPlan: 0, address: 0, joinDate: 0, weekday: 0, notes: 0, staffMemberId: 0, interestPercentage: 0,
   marriageStatus: 0, dateOfBirth: 0, house: 0, fatherOrHusbandRelation: 0, fatherOrHusbandName: 0, purposeOfLoan: 0,
   aadhaarNumber: 1, panNumber: 1, voterId: 1, smartCardNumber: 1,
@@ -43,8 +41,7 @@ const TAB_LABELS = ['Personal Info', 'Documents', 'Bank Details', 'Nominee', 'In
 
 const emptyValues = {
   // Personal
-  memberCode: '', name: '', headMember: false, headMemberId: '', centerPlace: '',
-  memberCode: '', name: '', headMember: false, headMemberId: '', centerPlace: '', centerCode: '',
+  memberCode: '', name: '', headMember: false, headMemberId: '', centerPlace: '', groupId: '', groupName: '',
   phoneNumber: '', alternatePhoneNumber: '', address: '',
   // Documents
   aadhaarNumber: '', panNumber: '', voterId: '', smartCardNumber: '',
@@ -53,7 +50,6 @@ const emptyValues = {
   // Nominee
   nomineeName: '', nomineePhoneNumber: '', nomineeRelation: '', nomineeAadhaar: '', nomineePan: '', nomineeVoterId: '', nomineeGender: '',
   // Collection
-  loanPlan: '', weeklyAmount: '', joinDate: todayIso(), notes: '',
   loanPlan: '', weeklyAmount: '', joinDate: todayIso(), weekday: '', notes: '', marriageStatus: '', dateOfBirth: '', house: '', gender: '',
   // Father/Husband name, and the loan's stated purpose — shown on the printed Loan Application
   fatherOrHusbandRelation: 'FATHER', fatherOrHusbandName: '', purposeOfLoan: '',
@@ -165,6 +161,8 @@ export default function MemberFormDialog({ open, member, submitting, onSubmit, o
         headMember: member.headMember || false,
         headMemberId: member.headMemberId || '',
         centerPlace: member.centerPlace || '',
+        groupId: member.groupId || '',
+        groupName: member.groupName || '',
         phoneNumber: member.phoneNumber || '',
         alternatePhoneNumber: member.alternatePhoneNumber || '',
         address: member.address || '',
@@ -243,7 +241,8 @@ export default function MemberFormDialog({ open, member, submitting, onSubmit, o
       headMember: false,
       headMemberId: resolvedHeadId || '',
       centerPlace: candidate.centerPlace || '',
-      centerCode: candidate.centerCode || '',
+      groupId: candidate.groupId || '',
+      groupName: candidate.groupName || '',
       phoneNumber: candidate.phoneNumber || '',
       alternatePhoneNumber: candidate.alternatePhoneNumber || '',
       address: candidate.address || '',
@@ -288,7 +287,8 @@ export default function MemberFormDialog({ open, member, submitting, onSubmit, o
       headMember: values.headMember,
       headMemberId: values.headMember ? null : (values.headMemberId || null),
       centerPlace: values.centerPlace,
-      centerCode: values.centerCode,
+      groupId: values.groupId,
+      groupName: values.groupName,
       phoneNumber: values.phoneNumber,
       alternatePhoneNumber: values.alternatePhoneNumber || null,
       address: values.address,
@@ -426,7 +426,8 @@ export default function MemberFormDialog({ open, member, submitting, onSubmit, o
                           if (selectedHead?.centerPlace) {
                             setValue('centerPlace', selectedHead.centerPlace, { shouldValidate: true, shouldDirty: true });
                           }
-                          setValue('centerCode', selectedHead?.centerCode, { shouldValidate: true, shouldDirty: true });
+                          setValue('groupId', selectedHead?.groupId, { shouldValidate: true, shouldDirty: true });
+                          setValue('groupName', selectedHead?.groupName, { shouldValidate: true, shouldDirty: true });
                         }}
                       >
                         {headOptions
@@ -493,10 +494,19 @@ export default function MemberFormDialog({ open, member, submitting, onSubmit, o
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <Controller
-                  name="centerCode"
+                  name="groupId"
                   control={control}
                   render={({ field }) => (
-                    <TextField {...field} fullWidth label="Center Code" />
+                    <TextField {...field} fullWidth label="Group ID" />
+                  )}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <Controller
+                  name="groupName"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} fullWidth label="Group Name" />
                   )}
                 />
               </Grid>
@@ -566,7 +576,7 @@ export default function MemberFormDialog({ open, member, submitting, onSubmit, o
                         <Stack key={c.id} direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
                           <StatusChip status={c.status} />
                           <Button size="small" variant="outlined" onClick={() => applyReloan(c)}>
-                            New loan for {c.name} ({c.memberCode}{c.centerCode ? ` · ${c.centerCode}` : ''})
+                            New loan for {c.name} ({c.memberCode}{c.groupId ? ` · ${c.groupId}` : ''})
                           </Button>
                         </Stack>
                       ))}
