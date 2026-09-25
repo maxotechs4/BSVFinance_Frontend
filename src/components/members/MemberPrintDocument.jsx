@@ -144,24 +144,18 @@ function ScheduleCell({ children, wide, align = 'center' }) {
   );
 }
 
-function LoanScheduleTable({ schedule }) {
-  const rows = schedule || [];
+function LoanScheduleTable({ schedule, totalLoanAmount }) {
+  const rows = (schedule || []).slice(0, 16);
 
-  const totals = rows.reduce(
-    (acc, r) => ({
-      principal: acc.principal + (Number(r.demandPrincipal) || 0),
-      interest: acc.interest + (Number(r.demandInterest) || 0),
-      total: acc.total + (Number(r.demandTotal) || 0),
-    }),
-    { principal: 0, interest: 0, total: 0 }
-  );
+  const loanAmount = Number(totalLoanAmount) || 0;
+  const weeklyPrincipal = rows.length ? loanAmount / rows.length : 0;
 
   return (
     <Box sx={{ border: SCHEDULE_BORDER, borderRight: 'none', borderBottom: 'none', mt: 0.5 }}>
       {/* Group header: EMI Demand vs EMI Collection */}
       <Box sx={{ display: 'flex' }}>
         <ScheduleHeaderCell>S.No</ScheduleHeaderCell>
-                <ScheduleHeaderCell flexOverride={5} sx={{ borderRight: '2px solid #333' }}>EMI Demand</ScheduleHeaderCell>
+        <ScheduleHeaderCell flexOverride={4}>EMI Demand</ScheduleHeaderCell>
         <ScheduleHeaderCell wide>Collection Date</ScheduleHeaderCell>
         <ScheduleHeaderCell>Receipt No</ScheduleHeaderCell>
         <ScheduleHeaderCell wide>Officer Signature</ScheduleHeaderCell>
@@ -171,32 +165,37 @@ function LoanScheduleTable({ schedule }) {
         <ScheduleHeaderCell>{''}</ScheduleHeaderCell>
         <ScheduleHeaderCell wide>Demand Date</ScheduleHeaderCell>
         <ScheduleHeaderCell>Principal</ScheduleHeaderCell>
-        <ScheduleHeaderCell>Interest</ScheduleHeaderCell>
-        <ScheduleHeaderCell>Total</ScheduleHeaderCell>
+        <ScheduleHeaderCell>Balance</ScheduleHeaderCell>
         <ScheduleHeaderCell wide>{''}</ScheduleHeaderCell>
         <ScheduleHeaderCell>{''}</ScheduleHeaderCell>
         <ScheduleHeaderCell wide>{''}</ScheduleHeaderCell>
       </Box>
 
-      {rows.map((r, i) => (
-        <Box key={r.installmentNo ?? i} sx={{ display: 'flex' }}>
-          <ScheduleCell>{r.installmentNo ?? i + 1}</ScheduleCell>
-          <ScheduleCell wide>{formatDate(r.demandDate)}</ScheduleCell>
-          <ScheduleCell align="right">{''}</ScheduleCell>
-          <ScheduleCell align="right">{''}</ScheduleCell>
-          <ScheduleCell align="right">{''}</ScheduleCell>
-          <ScheduleCell wide>{''}</ScheduleCell>
-          <ScheduleCell>{''}</ScheduleCell>
-          <ScheduleCell wide>{''}</ScheduleCell>
-        </Box>
-      ))}
+            {rows.map((r, i) => {
+        // Last row is forced to exactly 0 to avoid floating-point remainder.
+        const balance = i === rows.length - 1
+          ? 0
+          : loanAmount - weeklyPrincipal * (i + 1);
+
+        return (
+          <Box key={r.installmentNo ?? i} sx={{ display: 'flex' }}>
+            <ScheduleCell>{r.installmentNo ?? i + 1}</ScheduleCell>
+            <ScheduleCell wide>{formatDate(r.demandDate)}</ScheduleCell>
+            <ScheduleCell align="right">{formatCurrency(weeklyPrincipal)}</ScheduleCell>
+            <ScheduleCell align="right">{formatCurrency(balance)}</ScheduleCell>
+            <ScheduleCell wide>{''}</ScheduleCell>
+            <ScheduleCell>{''}</ScheduleCell>
+            <ScheduleCell wide>{''}</ScheduleCell>
+          </Box>
+        );
+      })}
 
       {/* Totals row */}    
+            {/* Totals row */}    
       <Box sx={{ display: 'flex' }}>
         <ScheduleCell wide align="right">Total:</ScheduleCell>
         <ScheduleCell>{''}</ScheduleCell>
-        <ScheduleCell align="right">{''}</ScheduleCell>
-        <ScheduleCell align="right">{''}</ScheduleCell>
+        <ScheduleCell align="right">{formatCurrency(weeklyPrincipal * rows.length)}</ScheduleCell>
         <ScheduleCell align="right">{''}</ScheduleCell>
         <ScheduleCell wide>{''}</ScheduleCell>
         <ScheduleCell>{''}</ScheduleCell>
@@ -273,8 +272,12 @@ export default function MemberPrintDocument({ member, photoUrl }) {
               { label: 'Place Name', value: member.centerPlace },
             ]} />
             <Row cells={[
-              { label: 'Group Name', value: member.groupName },
+              { label: 'Head Member Name', value: member.headMember ? member.name : member.headMemberName },
               { label: 'Group ID', value: member.groupId },
+            ]} />
+            <Row cells={[
+              { label: 'Group Name', value: member.groupName },
+              { label: 'Member Name', value: member.name },
             ]} />
             <Row cells={[
               { label: 'Term Period', value: ''},
@@ -295,7 +298,7 @@ export default function MemberPrintDocument({ member, photoUrl }) {
            
           </Box>
 
-          <LoanScheduleTable schedule={member.loanSchedule} />
+          <LoanScheduleTable schedule={member.loanSchedule} totalLoanAmount={member.loanAmount} />
         </>
       )}
     </Box>

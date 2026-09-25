@@ -15,15 +15,26 @@ import StatusChip from '../common/StatusChip';
 
 const PHONE_PATTERN = /^[6-9]\d{9}$/;
 const LOAN_PLAN_OPTIONS = [
-  { id: 'w-15000', loanAmount: 15000, weeklyAmount: 700, totalWeeks: 26, frequency: 'WEEKLY' },
-  { id: 'w-20000', loanAmount: 20000, weeklyAmount: 880, totalWeeks: 28, frequency: 'WEEKLY' },
-  { id: 'w-25000', loanAmount: 25000, weeklyAmount: 1040, totalWeeks: 32, frequency: 'WEEKLY' },
-  { id: 'w-30000', loanAmount: 30000, weeklyAmount: 1190, totalWeeks: 32, frequency: 'WEEKLY' },
-  { id: 'w-35000', loanAmount: 35000, weeklyAmount: 1320, totalWeeks: 34, frequency: 'WEEKLY' },
-  { id: 'w-40000', loanAmount: 40000, weeklyAmount: 1450, totalWeeks: 36, frequency: 'WEEKLY' },
-  { id: 'm-30000', loanAmount: 30000, monthlyAmount: 2800, frequency: 'MONTHLY' },
-  { id: 'm-40000', loanAmount: 40000, monthlyAmount: 3300, frequency: 'MONTHLY' },
-  { id: 'm-50000', loanAmount: 50000, monthlyAmount: 3750, frequency: 'MONTHLY' },
+  { id: 'w-10000', loanAmount: 10000, weeklyAmount: 775, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-15000', loanAmount: 15000, weeklyAmount: 1165, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-20000', loanAmount: 20000, weeklyAmount: 1550, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-25000', loanAmount: 25000, weeklyAmount: 1940, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-30000', loanAmount: 30000, weeklyAmount: 2325, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-35000', loanAmount: 35000, weeklyAmount: 2715, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-35000', loanAmount: 35000, weeklyAmount: 2715, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-40000', loanAmount: 40000, weeklyAmount: 3100, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-45000', loanAmount: 45000, weeklyAmount: 3490, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-50000', loanAmount: 50000, weeklyAmount: 3875, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-55000', loanAmount: 55000, weeklyAmount: 4265, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-60000', loanAmount: 60000, weeklyAmount: 4650, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-65000', loanAmount: 65000, weeklyAmount: 5040, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-70000', loanAmount: 70000, weeklyAmount: 5425, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-75000', loanAmount: 75000, weeklyAmount: 5815, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-80000', loanAmount: 80000, weeklyAmount: 6200, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-85000', loanAmount: 85000, weeklyAmount: 6590, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-90000', loanAmount: 90000, weeklyAmount: 6975, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-95000', loanAmount: 95000, weeklyAmount: 7365, totalWeeks: 16, frequency: 'WEEKLY' },
+  { id: 'w-100000', loanAmount: 100000, weeklyAmount: 7750, totalWeeks: 16, frequency: 'WEEKLY' },
 ];
 
 const FIELD_TAB_MAP = {
