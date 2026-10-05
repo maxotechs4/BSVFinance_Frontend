@@ -29,7 +29,7 @@ import { extractErrorMessage } from '../services/apiClient';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import { formatCurrency, formatDate, weekdayLabel } from '../utils/formatters';
-import { moneyFontFamily } from '../styles/theme';
+import { moneyFontFamily, brandColors } from '../styles/theme';
 import StatusChip from '../components/common/StatusChip';
 import PaymentMethodBadge from '../components/common/PaymentMethodBadge';
 import PaymentFormDialog from '../components/payments/PaymentFormDialog';
@@ -37,6 +37,99 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import NomineeImageDialog from '../components/common/NomineeImageDialog';
 import MemberPrintDocument from '../components/members/MemberPrintDocument';
+
+
+// Shared look for the header chips: Member ID, Status, Center Place
+const headerChipSx = {
+  height: 26,
+  fontFamily: 'inherit',
+  fontSize: '0.8125rem',
+  fontWeight: 600,
+  letterSpacing: 0.2,
+  bgcolor: 'transparent',
+  borderWidth: 1,
+  borderStyle: 'solid',
+};
+
+// ---- Brand styling (logo colors: black / red / yellow) ----
+const sectionTitleSx = {
+  pl: 1.5,
+  lineHeight: 1.3,
+  borderLeft: `4px solid ${brandColors.teal700}`,
+};
+
+const statCardSx = {
+  p: 1.5,
+  textAlign: 'center',
+  borderTop: `3px solid ${brandColors.teal700}`,
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+  '&:hover': { boxShadow: '0 2px 10px rgba(227,30,36,0.12)' },
+};
+
+const tableHeadSx = {
+  '& .MuiTableCell-head': {
+    bgcolor: brandColors.teal900,
+    color: '#FFFFFF',
+    borderBottom: `3px solid ${brandColors.teal700}`,
+  },
+};
+
+// Outlined buttons: black outline, turning logo red on hover
+const brandOutlinedSx = {
+  color: 'text.primary',
+  borderColor: 'text.primary',
+  '&:hover': {
+    color: brandColors.teal700,
+    borderColor: brandColors.teal700,
+    bgcolor: 'rgba(227,30,36,0.06)',
+  },
+};
+
+// Same width and height for the 4 action buttons (Close Loan, Delete, Upload Photo, Upload Image)
+// Shared dark style for the 4 action buttons (works in light and dark mode).
+// Only the start icon keeps its own color (see actionIconSx).
+// Shared style for the 4 action buttons — adapts to light and dark mode.
+// Only the start icon keeps its own color (see actionIconSx).
+const actionButtonSx = {
+  width: { xs: 140, sm: 165 },
+  height: 34,
+  justifyContent: 'center',
+  whiteSpace: 'nowrap',
+  fontWeight: 600,
+  color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#1F1F1F'),
+  bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1F1F1F' : '#FFFFFF'),
+  borderColor: (theme) => (theme.palette.mode === 'dark' ? '#3D3D3D' : '#C9C9C9'),
+  boxShadow: (theme) => (theme.palette.mode === 'dark' ? 'none' : '0 1px 2px rgba(0,0,0,0.06)'),
+  '&:hover': {
+    color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#000000'),
+    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2E2E2E' : '#F3F3F1'),
+    borderColor: (theme) => (theme.palette.mode === 'dark' ? '#6B6B6B' : '#8A8A8A'),
+  },
+  '&.Mui-disabled': {
+    color: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.38)'),
+    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2A2A2A' : '#F0F0EE'),
+    borderColor: (theme) => (theme.palette.mode === 'dark' ? '#3D3D3D' : '#DCDCDC'),
+    '& .MuiButton-startIcon': { opacity: 0.45 },
+  },
+};
+
+// lightColor is used in light mode, darkColor in dark mode
+const actionIconSx = (lightColor, darkColor = lightColor) => ({
+  '& .MuiButton-startIcon': {
+    color: (theme) => (theme.palette.mode === 'dark' ? darkColor : lightColor),
+  },
+});
+
+// Dashboard-style text buttons (Export PDF / Export Excel / Print)
+const textActionSx = {
+  fontWeight: 600,
+  fontSize: '0.85rem',
+  color: 'text.secondary',
+  '&:hover': {
+    bgcolor: (theme) =>
+      theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.07)',
+  },
+};
 
 function DetailItem({ label, value }) {
   if (!value) return null;
@@ -286,7 +379,7 @@ export default function MemberProfilePage() {
     const periodLabel = member.paymentFrequency === 'MONTHLY' ? 'Month' : 'Week';
 
     doc.setFontSize(14);
-    doc.text('Anbu Foundation', 14, 16);
+    doc.text('BSV Finance', 14, 16);
     doc.setFontSize(11);
     doc.text('Member Collection Summary', 14, 23);
 
@@ -406,15 +499,52 @@ export default function MemberProfilePage() {
             <Typography variant="h5" sx={{ fontWeight: member.headMember ? 700 : 600 }}>
               {member.name}
             </Typography>
-            {member.headMember && <Chip label="HEAD MEMBER" color="warning" size="small" />}
+            {member.headMember && <Chip
+                label="HEAD MEMBER"
+                size="small"
+                sx={{ fontWeight: 600, bgcolor: brandColors.teal300, color: brandColors.teal900 }}
+              />}
           </Box>
-          <Chip label={member.groupId} size="small" sx={{ fontFamily: moneyFontFamily }} />
+
+          {/* Member ID */}
+          <Chip
+            label={member.memberCode}
+            size="small"
+            variant="outlined"
+            sx={{
+              ...headerChipSx,
+              color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+              borderColor: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+            }}
+          />    
+
+          {/* Center Place */}
+          {member.centerPlace && (
+            <Chip
+              label={member.centerPlace}
+              size="small"
+              variant="outlined"
+              sx={{
+                ...headerChipSx,
+                color: brandColors.teal700,
+                borderColor: brandColors.teal700,
+              }}
+            />
+          )}
+
+          {/* Status */}
           <Chip
             label={member.status}
             size="small"
-            color={member.status === 'ACTIVE' ? 'success' : member.status === 'CLOSED' ? 'info' : 'default'}
+            variant="outlined"
+            sx={{
+              ...headerChipSx,
+              color:
+                member.status === 'ACTIVE' ? '#2E9E45' : member.status === 'CLOSED' ? '#E31E24' : 'text.secondary',
+              borderColor:
+                member.status === 'ACTIVE' ? '#2E9E45' : member.status === 'CLOSED' ? '#E31E24' : 'text.secondary',
+            }}
           />
-          {member.centerPlace && <Chip label={member.centerPlace} size="small" variant="outlined" />}
           <Box sx={{ flex: 1 }} />
           <Box className="no-print" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {!isLoanClosed && (
@@ -424,7 +554,7 @@ export default function MemberProfilePage() {
                     variant="outlined"
                     color="primary"
                     size="small"
-                    startIcon={<TaskAltRoundedIcon />}
+                    sx={{ ...actionButtonSx, ...actionIconSx('#2E9E45', '#4CAF50') }}                    startIcon={<TaskAltRoundedIcon />}
                     disabled={!canCloseLoan}
                     onClick={() => setCloseLoanOpen(true)}
                   >
@@ -437,17 +567,15 @@ export default function MemberProfilePage() {
               variant="outlined"
               color="error"
               size="small"
+              sx={{ ...actionButtonSx, ...actionIconSx('#E53935', '#EF5350') }}
               startIcon={<DeleteRoundedIcon />}
               onClick={() => setDeleteMemberOpen(true)}
             >
-              Delete
+              Delete Member
             </Button>
           </Box>
         </Box>
 
-        {/* Line 2: Upload Photo / Upload Image, bottom-right — Admin-only. Staff/Viewer can
-            still view and download nominee images from the Nominee section below, but
-            cannot upload either (enforced here and again on the backend). */}
         {isAdmin && (
           <Box className="no-print" sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
             {/* Member's own photo — shown on the printed Loan Application */}
@@ -464,11 +592,7 @@ export default function MemberProfilePage() {
               startIcon={<PhotoCameraRoundedIcon />}
               disabled={uploadingPhoto}
               onClick={handlePhotoUploadClick}
-              sx={{
-                color: '#2E7D32',
-                borderColor: '#2E7D32',
-                '&:hover': { borderColor: '#1B5E20', backgroundColor: 'rgba(46, 125, 50, 0.04)' },
-              }}
+              sx={{ ...actionButtonSx, ...actionIconSx('#D9B400', brandColors.teal300) }}
             >
               {uploadingPhoto ? 'Uploading...' : member.hasMemberPhoto ? 'Replace Photo' : 'Upload Photo'}
             </Button>
@@ -487,11 +611,7 @@ export default function MemberProfilePage() {
               startIcon={<UploadFileRoundedIcon />}
               disabled={uploadingImage}
               onClick={handleUploadClick}
-              sx={{
-                color: '#1565C0',
-                borderColor: '#1565C0',
-                '&:hover': { borderColor: '#0D47A1', backgroundColor: 'rgba(21, 101, 192, 0.04)' },
-              }}
+              sx={{ ...actionButtonSx, ...actionIconSx('#1E88E5', '#42A5F5') }}
             >
               {uploadingImage ? 'Uploading...' : 'Upload Image'}
             </Button>
@@ -502,25 +622,25 @@ export default function MemberProfilePage() {
       {/* Summary cards */}
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 6, sm: 3 }}>
-          <Paper variant="outlined" sx={{ p: 1.5, textAlign: 'center' }}>
+          <Paper variant="outlined" sx={statCardSx}>
             <Typography variant="caption" color="text.secondary">Weekly Amount</Typography>
             <Typography variant="h6" sx={{ fontFamily: moneyFontFamily }}>{formatCurrency(member.weeklyAmount)}</Typography>
           </Paper>
         </Grid>
         <Grid size={{ xs: 6, sm: 3 }}>
-          <Paper variant="outlined" sx={{ p: 1.5, textAlign: 'center' }}>
+          <Paper variant="outlined" sx={statCardSx}>
             <Typography variant="caption" color="text.secondary">Credit Balance</Typography>
             <Typography variant="h6" sx={{ fontFamily: moneyFontFamily, color: 'success.main' }}>{formatCurrency(member.creditBalance)}</Typography>
           </Paper>
         </Grid>
         <Grid size={{ xs: 6, sm: 3 }}>
-          <Paper variant="outlined" sx={{ p: 1.5, textAlign: 'center' }}>
+          <Paper variant="outlined" sx={statCardSx}>
             <Typography variant="caption" color="text.secondary">Total Payments</Typography>
             <Typography variant="h6">{payments.length}</Typography>
           </Paper>
         </Grid>
         <Grid size={{ xs: 6, sm: 3 }}>
-          <Paper variant="outlined" sx={{ p: 1.5, textAlign: 'center' }}>
+          <Paper variant="outlined" sx={statCardSx}>
             <Typography variant="caption" color="text.secondary">Join Date</Typography>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>{formatDate(member.joinDate)}</Typography>
           </Paper>
@@ -528,17 +648,36 @@ export default function MemberProfilePage() {
       </Grid>
 
       {dueHistory.length > 0 && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
+        <Alert
+          severity="warning"
+          sx={{
+            mb: 2,
+            color: 'text.primary',
+            bgcolor: 'rgba(232, 208, 25, 0.16)',
+            border: '1px solid rgba(232, 208, 25, 0.6)',
+            '& .MuiAlert-icon': { color: brandColors.amberDark },
+          }}
+        >
           {dueHistory.length} {member.paymentFrequency === 'MONTHLY' ? 'month' : 'week'}{dueHistory.length > 1 ? 's' : ''} with outstanding balance —
           total {formatCurrency(dueHistory.reduce((s, p) => s + Number(p.remainingAmount), 0))}
         </Alert>
       )}
 
       {/* Tabs */}
-            {/* Tabs */}
+
       <Paper variant="outlined" sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 2, flex: 1, minHeight: 48 }}>
+          <Tabs
+            value={tab}
+            onChange={(_, v) => setTab(v)}
+            sx={{
+              px: 2,
+              flex: 1,
+              minHeight: 48,
+              '& .MuiTabs-indicator': { bgcolor: brandColors.teal700, height: 3 },
+              '& .MuiTab-root.Mui-selected': { color: brandColors.teal700 },
+            }}
+          >
             <Tab label="Personal Info" />
             {hasDocuments && <Tab icon={<BadgeRoundedIcon fontSize="small" />} label="Documents" iconPosition="start" />}
             {hasBankDetails && <Tab icon={<AccountBalanceRoundedIcon fontSize="small" />} label="Bank Details" iconPosition="start" />}
@@ -554,9 +693,8 @@ export default function MemberProfilePage() {
                   onClick={() => setImageDialogOpen(true)}
                   sx={{
                     mr: 2, textTransform: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
-                    color: '#b1abab',
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
-                    '&.Mui-disabled': { color: 'rgba(211, 198, 198, 0.26)' },
+                    color: 'text.primary',
+                    '&.Mui-disabled': { color: 'text.disabled', borderColor: 'divider', },
                   }}
                 >
                   View Image{member.nomineeImageCount > 0 ? ` (${member.nomineeImageCount})` : ''}
@@ -706,29 +844,29 @@ export default function MemberProfilePage() {
 
       {/* Payment History */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, mb: 1.5 }}>
-        <Typography variant="h6">Payment History</Typography>
+        <Typography variant="h6" sx={sectionTitleSx}>Payment History</Typography>
 
         <Box className="no-print" sx={{ display: 'flex', gap: 1 }}>
           <Button
             size="small"
-            variant="outlined"
-            startIcon={<PictureAsPdfRoundedIcon fontSize="small" />}
+            sx={textActionSx}
+            startIcon={<PictureAsPdfRoundedIcon />}
             onClick={handleExportPdf}
           >
             Export PDF
           </Button>
           <Button
             size="small"
-            variant="outlined"
-            startIcon={<TableViewRoundedIcon fontSize="small" />}
+            sx={textActionSx}
+            startIcon={<TableViewRoundedIcon />}
             onClick={handleExportExcel}
           >
             Export Excel
           </Button>
           <Button
             size="small"
-            variant="outlined"
-            startIcon={<PrintRoundedIcon fontSize="small" />}
+            sx={textActionSx}
+            startIcon={<PrintRoundedIcon />}
             onClick={handlePrint}
           >
             Print
@@ -738,11 +876,11 @@ export default function MemberProfilePage() {
       <Paper variant="outlined">
         <TableContainer sx={{ overflowX: 'auto' }}>
           <Table size="small" sx={{ minWidth: 640 }}>
-            <TableHead>
+            <TableHead sx={tableHeadSx}>
               <TableRow>
                 <TableCell>{member.paymentFrequency === 'MONTHLY' ? 'Month' : 'Week'}</TableCell>
-                <TableCell align="right">Paid</TableCell>
-                <TableCell align="right">Remaining</TableCell>
+                <TableCell>Paid</TableCell>
+                <TableCell>Remaining</TableCell>
                 <TableCell>Method</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Status</TableCell>
@@ -760,8 +898,8 @@ export default function MemberProfilePage() {
               {payments.map((payment) => (
                 <TableRow key={payment.id} hover>
                   <TableCell>{member.paymentFrequency === 'MONTHLY' ? 'M' : 'W'}{payment.weekNumber} / {payment.paymentYear}</TableCell>
-                  <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>{formatCurrency(payment.amountPaid)}</TableCell>
-                  <TableCell align="right" sx={{ fontFamily: moneyFontFamily, color: payment.remainingAmount > 0 ? 'error.main' : 'text.secondary' }}>
+                  <TableCell sx={{ fontFamily: moneyFontFamily }}>{formatCurrency(payment.amountPaid)}</TableCell>
+                  <TableCell sx={{ fontFamily: moneyFontFamily, color: payment.remainingAmount > 0 ? 'error.main' : 'text.secondary' }}>
                     {formatCurrency(payment.remainingAmount)}
                   </TableCell>
                   <TableCell><PaymentMethodBadge method={payment.paymentMethod} /></TableCell>

@@ -1,19 +1,17 @@
 import { createTheme } from '@mui/material/styles';
 
 /**
- * Design language: a "ledger book" aesthetic for a microfinance collection app -
- * deep teal as the trust/primary color, warm amber as the currency/accent color,
- * tabular monospace figures for money so columns of rupee amounts line up cleanly.
+ * Brand palette taken from the BSV logo + sidebar:
+ * black (primary), red (active / highlight), yellow (accent).
+ * Key names (teal900 / teal700 / amber) are kept so existing imports
+ * such as DashboardCharts.jsx keep working.
  */
 const palette = {
-  teal900: '#060606',
-  // teal900: '#15433D',
-  // teal700: '#1F584F',
-  teal700: '#E31E24',
-  // teal300: '#9FCBBE',
-  teal300: '#e8d019',
-  amber: '#C98A3D',
-  amberDark: '#854F0B',
+  teal900: '#060606',   // logo black
+  teal700: '#E31E24',   // logo red
+  teal300: '#E8D019',   // logo yellow
+  amber: '#E8D019',     // logo yellow (accent)
+  amberDark: '#8A7A00', // darker yellow, readable as text on white
   green: '#3C8C5E',
   red: '#B4453A',
 };
@@ -25,12 +23,16 @@ export function buildTheme(mode = 'light') {
     palette: {
       mode,
       primary: { main: palette.teal900, light: palette.teal700, contrastText: '#FFFFFF' },
-      secondary: { main: palette.amber, contrastText: '#FFFFFF' },
+      secondary: {
+        main: palette.amber,
+        dark: palette.amberDark,
+        contrastText: '#060606',
+      },
       success: { main: palette.green },
       error: { main: palette.red },
       background: {
-        default: isDark ? '#0F1714' : '#EFF3F1',
-        paper: isDark ? '#16201D' : '#FFFFFF',
+        default: isDark ? '#0C0C0C' : '#F5F4F1',
+        paper: isDark ? '#171717' : '#FFFFFF',
       },
     },
     shape: { borderRadius: 10 },

@@ -83,8 +83,19 @@ export default function SettingsPage() {
         <Grid size={{ xs: 12, sm: 6 }}>
           <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, height: '100%' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main' }}>
-                {(user?.fullName || user?.username || 'A').charAt(0).toUpperCase()}
+              <Avatar
+                sx={{
+                  width: 56,
+                  height: 56,
+                  bgcolor: '#1F1F1F',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: '1.5rem',
+                }}
+              >
+                {user?.role === 'ADMIN'
+                  ? 'A'
+                  : (user?.fullName || user?.username || 'A').charAt(0).toUpperCase()}
               </Avatar>
               <Box sx={{ minWidth: 0 }}>
                 <Typography variant="subtitle1" noWrap>{user?.fullName || user?.username}</Typography>
@@ -98,7 +109,26 @@ export default function SettingsPage() {
           <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, height: '100%' }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>Appearance</Typography>
             <FormControlLabel
-              control={<Switch checked={mode === 'dark'} onChange={toggleMode} />}
+              control={
+              <Switch
+                checked={mode === 'dark'}
+                onChange={toggleMode}
+                sx={{
+                  // OFF state
+                  '& .MuiSwitch-switchBase': { color: '#D0D0D0' },
+                  '& .MuiSwitch-track': {
+                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#5A5A5A' : '#9E9E9E'),
+                    opacity: 1,
+                  },
+                  // ON state: gold thumb on a charcoal track
+                  '& .MuiSwitch-switchBase.Mui-checked': { color: '#ffffff' },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#5A5A5A' : '#1F1F1F'),
+                    opacity: 1,
+                  },
+                }}
+              />
+            }
               label="Dark mode"
             />
           </Paper>

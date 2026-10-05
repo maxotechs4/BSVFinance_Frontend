@@ -13,8 +13,17 @@ export default function LoadingSpinner({ label = 'Loading...', fullHeight = fals
         minHeight: fullHeight ? '60vh' : 'auto',
       }}
     >
-      <CircularProgress size={36} thickness={4} />
-      <Typography variant="body2" color="text.secondary">
+      <CircularProgress
+        size={36}
+        thickness={4}
+        sx={{
+          color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+        }}
+      />
+      <Typography
+        variant="body2"
+        sx={{ color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : 'text.secondary') }}
+      >
         {label}
       </Typography>
     </Box>

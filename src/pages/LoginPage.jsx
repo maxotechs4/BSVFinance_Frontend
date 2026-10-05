@@ -18,6 +18,35 @@ import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import { useAuth } from '../hooks/useAuth';
 import { extractErrorMessage } from '../services/apiClient';
 import logo from '../assets/logo.webp';
+
+// Login input styling: visible border in both themes, white highlight in dark mode
+const loginFieldSx = {
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: (theme) => (theme.palette.mode === 'dark' ? '#6B6B6B' : 'rgba(0,0,0,0.23)'),
+    },
+    '&:hover fieldset': {
+      borderColor: (theme) => (theme.palette.mode === 'dark' ? '#BDBDBD' : '#060606'),
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+      borderWidth: 2,
+    },
+    '&.Mui-error fieldset': {
+      borderColor: (theme) => theme.palette.error.main,
+    },
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+  },
+  '& .MuiInputLabel-root.Mui-error': {
+    color: (theme) => theme.palette.error.main,
+  },
+  '& .MuiInputBase-input': {
+    caretColor: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+  },
+};
+
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -82,6 +111,7 @@ export default function LoginPage() {
             label="Username"
             margin="normal"
             autoFocus
+            sx={loginFieldSx}
             error={Boolean(errors.username)}
             helperText={errors.username?.message}
             {...register('username', { required: 'Username is required' })}
@@ -91,6 +121,7 @@ export default function LoginPage() {
             label="Password"
             type={showPassword ? 'text' : 'password'}
             margin="normal"
+            sx={loginFieldSx}
             error={Boolean(errors.password)}
             helperText={errors.password?.message}
             slotProps={{

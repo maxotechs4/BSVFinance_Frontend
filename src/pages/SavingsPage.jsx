@@ -23,7 +23,6 @@ export default function SavingsPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const { user } = useAuth();
-  const isViewer = user?.role === 'VIEWER';
 
   const [members, setMembers] = useState([]);
   const [totalElements, setTotalElements] = useState(0);
@@ -97,12 +96,10 @@ export default function SavingsPage() {
     <Box>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h5">Monthly Savings</Typography>
-        {!isViewer && (
-          <Button variant="contained" startIcon={<AddRoundedIcon />}
-            onClick={() => setMemberDialog({ open: true, member: null })}>
-            Create member
-          </Button>
-        )}
+        <Button variant="contained" startIcon={<AddRoundedIcon />}
+          onClick={() => setMemberDialog({ open: true, member: null })}>
+          Create member
+        </Button>
       </Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Fixed plan: ₹1,180 / month for 36 months
@@ -124,12 +121,12 @@ export default function SavingsPage() {
                 <TableRow>
                   <TableCell>Member</TableCell>
                   <TableCell>Place</TableCell>
-                  <TableCell align="right">Monthly</TableCell>
-                  <TableCell align="right">Total Paid</TableCell>
-                  <TableCell align="right">Total Balance</TableCell>
-                  <TableCell align="center">Installments</TableCell>
+                  <TableCell>Monthly</TableCell>
+                  <TableCell>Total Paid</TableCell>
+                  <TableCell>Total Balance</TableCell>
+                  <TableCell>Installments</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -149,16 +146,16 @@ export default function SavingsPage() {
                         </Typography>
                       </TableCell>
                       <TableCell>{m.place}</TableCell>
-                      <TableCell align="right">{formatCurrency(m.monthlyAmount)}</TableCell>
-                      <TableCell align="right" sx={{ color: 'success.main' }}>{formatCurrency(m.totalPaid)}</TableCell>
-                      <TableCell align="right" sx={{ color: Number(m.totalBalance) > 0 ? 'error.main' : 'success.main' }}>
+                      <TableCell>{formatCurrency(m.monthlyAmount)}</TableCell>
+                      <TableCell sx={{ color: 'success.main' }}>{formatCurrency(m.totalPaid)}</TableCell>
+                      <TableCell sx={{ color: Number(m.totalBalance) > 0 ? 'error.main' : 'success.main' }}>
                         {formatCurrency(m.totalBalance)}
                       </TableCell>
-                      <TableCell align="center">{m.installmentsPaid} / {m.totalMonths}</TableCell>
+                      <TableCell>{m.installmentsPaid} / {m.totalMonths}</TableCell>
                       <TableCell>
                         <Chip label={m.status} size="small" color={m.status === 'ACTIVE' ? 'success' : 'default'} />
                       </TableCell>
-                      <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Tooltip title="Payment history">
                           <IconButton size="small" onClick={() => navigate(`/savings/${m.id}`)}>
                             <ReceiptLongRoundedIcon fontSize="small" />

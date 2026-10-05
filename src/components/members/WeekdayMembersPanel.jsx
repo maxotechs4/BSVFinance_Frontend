@@ -40,6 +40,22 @@ import { moneyFontFamily } from '../../styles/theme';
 import { WEEKDAY_OPTIONS } from '../../utils/constants';
 
 import LoadingSpinner from '../common/LoadingSpinner';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
+
+
+// Dashboard-style text buttons (Print / Export PNG)
+const textActionSx = {
+  fontWeight: 600,
+  fontSize: '0.85rem',
+  color: 'text.secondary',
+  '&:hover': {
+    bgcolor: (theme) =>
+      theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.07)',
+  },
+  '&.Mui-disabled': {
+    color: 'text.disabled',
+  },
+};
 
 
 /* =========================================================
@@ -47,12 +63,6 @@ import LoadingSpinner from '../common/LoadingSpinner';
    ========================================================= */
 
 function getWeeklyCollectionAmount(member) {
-  /*
-   * The full loan amount must NOT be displayed.
-   *
-   * We look for the weekly collection amount fields
-   * returned by the backend.
-   */
 
   const amount =
     member.weeklyCollectionAmount ??
@@ -127,11 +137,6 @@ function getLatestPayment(payments) {
         return yearB - yearA;
       }
 
-
-      /*
-       * Then compare week number.
-       */
-
       const weekA =
         Number(a.weekNumber || 0);
 
@@ -141,12 +146,6 @@ function getLatestPayment(payments) {
       if (weekA !== weekB) {
         return weekB - weekA;
       }
-
-
-      /*
-       * If the year and week are the same,
-       * use payment date.
-       */
 
       const dateA =
         a.paymentDate
@@ -174,10 +173,6 @@ function getLatestPayment(payments) {
    ========================================================= */
 
 function getIsoWeeksInYear(year) {
-  /*
-   * ISO week 53 exists when December 31 belongs
-   * to ISO week 53.
-   */
 
   const december31 =
     new Date(
@@ -190,11 +185,6 @@ function getIsoWeeksInYear(year) {
 
   const day =
     december31.getUTCDay() || 7;
-
-  /*
-   * If Dec 31 is Thursday, the year has 53 weeks.
-   * If it is Friday in a leap year, it also has 53 weeks.
-   */
 
   if (day === 4) {
     return 53;
@@ -224,12 +214,6 @@ function getIsoWeeksInYear(year) {
 function getNextPaymentWeek(
   latestPayment
 ) {
-  /*
-   * If there is no payment history yet,
-   * use the current ISO week.
-   *
-   * This is much better than returning Week 1.
-   */
 
   if (
     !latestPayment ||
@@ -254,11 +238,6 @@ function getNextPaymentWeek(
     );
 
 
-  /*
-   * Invalid payment data:
-   * use the current ISO week.
-   */
-
   if (
     Number.isNaN(lastWeek) ||
     Number.isNaN(lastYear) ||
@@ -277,13 +256,6 @@ function getNextPaymentWeek(
     );
 
 
-  /*
-   * Normal case:
-   *
-   * Week 35 -> Week 36
-   * Week 36 -> Week 37
-   */
-
   if (
     lastWeek <
     weeksInYear
@@ -296,12 +268,6 @@ function getNextPaymentWeek(
     };
   }
 
-
-  /*
-   * End of ISO year:
-   *
-   * Week 52/53 -> Week 1 of next year.
-   */
 
   return {
     week: 1,
@@ -434,10 +400,6 @@ export default function WeekdayMembersPanel() {
      ======================================================= */
 
     useEffect(() => {
-    // Admin-only endpoint on the backend — STAFF/VIEWER always get a 401
-    // here, and since apiClient logs the user out on any 401, calling this
-    // unconditionally was silently kicking non-admin logins straight back
-    // to the login screen right after signing in.
     if (!isAdmin) {
       return;
     }
@@ -521,13 +483,6 @@ export default function WeekdayMembersPanel() {
           result || [];
 
 
-        /*
-         * Get payment history for every member.
-         *
-         * This is used only to determine the
-         * NEXT payment week.
-         */
-
         const membersWithPaymentHistory =
           await Promise.all(
             memberList.map(
@@ -546,11 +501,6 @@ export default function WeekdayMembersPanel() {
                     );
 
 
-                  /*
-                   * Calculate the next payment
-                   * week from the latest payment.
-                   */
-
                   const nextPayment =
                     getNextPaymentWeek(
                       latestPayment
@@ -560,10 +510,6 @@ export default function WeekdayMembersPanel() {
                   return {
                     ...member,
 
-                    /*
-                     * Keep last payment details
-                     * internally.
-                     */
 
                     lastPaymentWeek:
                       latestPayment?.weekNumber ??
@@ -577,12 +523,6 @@ export default function WeekdayMembersPanel() {
                       latestPayment?.paymentDate ??
                       null,
 
-
-                    /*
-                     * These are what the
-                     * Week column uses.
-                     */
-
                     nextPaymentWeek:
                       nextPayment.week,
 
@@ -592,14 +532,6 @@ export default function WeekdayMembersPanel() {
 
                 } catch (err) {
 
-                  /*
-                   * IMPORTANT:
-                   *
-                   * Do NOT return Week 1 here.
-                   *
-                   * If payment history cannot be
-                   * loaded, use the CURRENT ISO week.
-                   */
 
                   return {
                     ...member,
@@ -899,16 +831,6 @@ export default function WeekdayMembersPanel() {
 
       const scale = 2;
 
-
-      /*
-       * TABLE COLUMNS
-       *
-       * Member ID removed.
-       * Collected Amount removed.
-       * Save removed.
-       * Loan Plan changed to Amount.
-       * Week = NEXT PAYMENT WEEK.
-       */
 
       const columns = [
 
@@ -1273,14 +1195,6 @@ export default function WeekdayMembersPanel() {
               ),
 
 
-            /*
-             * IMPORTANT:
-             *
-             * This is the NEXT payment week.
-             *
-             * It does NOT use lastPaymentWeek.
-             */
-
             week:
               member.nextPaymentWeek ??
               isoWeekNumber(),
@@ -1310,9 +1224,6 @@ export default function WeekdayMembersPanel() {
                 18,
                 2
               );
-
-
-              /* Vertical border */
 
               ctx.strokeStyle =
                 '#777777';
@@ -1345,9 +1256,6 @@ export default function WeekdayMembersPanel() {
             }
           );
 
-
-          /* Right border */
-
           ctx.beginPath();
 
 
@@ -1368,8 +1276,6 @@ export default function WeekdayMembersPanel() {
 
           ctx.stroke();
 
-
-          /* Horizontal border */
 
           ctx.beginPath();
 
@@ -1668,53 +1574,34 @@ export default function WeekdayMembersPanel() {
         )}
 
         {/* =================================================
-            PRINT
-            ================================================= */}
+          PRINT
+          ================================================= */}
 
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={
-            <PrintRoundedIcon />
-          }
-          onClick={
-            handlePrint
-          }
-          disabled={
-            !weekday ||
-            filteredMembers.length ===
-              0
-          }
-          sx={{color: '#11817a'}}
-        >
-          Print
-        </Button>
+      <Button
+        size="small"
+        startIcon={<PrintRoundedIcon />}
+        onClick={handlePrint}
+        disabled={!weekday && !selectedStaff}
+        sx={textActionSx}
+      >
+        Print
+      </Button>
 
 
-        {/* =================================================
-            EXPORT PNG
-            ================================================= */}
+      {/* =================================================
+          EXPORT PNG
+          ================================================= */}
 
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={
-            <ImageRoundedIcon />
-          }
-          onClick={
-            handleExportPng
-          }
-          disabled={
-            !weekday ||
-            filteredMembers.length ===
-              0
-          }
-          sx={{color: '#11817a'}}
-        >
-          Export PNG
-        </Button>
-
-      </Stack>
+      <Button
+        size="small"
+        startIcon={<ImageRoundedIcon />}
+        onClick={handleExportPng}
+        disabled={!weekday && !selectedStaff}
+        sx={textActionSx}
+      >
+        Export PNG
+      </Button>
+      </Stack> 
 
 
       {/* ===================================================
@@ -1944,22 +1831,43 @@ export default function WeekdayMembersPanel() {
 
                       <TableCell>
 
-                        {member.name ||
-                          '-'}
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
 
+                          {/* Fixed-width name box so every HEAD chip lines up in a straight column */}
+                          <Box
+                            component="span"
+                            sx={{
+                              width: 110,
+                              flexShrink: 0,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {member.name || '-'}
+                          </Box>
 
-                        {member.headMember && (
-
+                          {member.headMember && (
                           <Chip
-                            label="HEAD"
+                            icon={<StarRoundedIcon />}
                             size="small"
-                            color="warning"
                             sx={{
                               ml: 1,
+                              fontWeight: 600,
+                              bgcolor: '#E8D019',
+                              color: '#060606',
+                              '& .MuiChip-icon': {
+                                color: '#060606',
+                                mx: '6px',        // equal space left and right of the star
+                              },
+                              '& .MuiChip-label': {
+                                display: 'none',  // remove the empty label's padding
+                              },
                             }}
                           />
-
                         )}
+
+                        </Box>
 
                       </TableCell>
 

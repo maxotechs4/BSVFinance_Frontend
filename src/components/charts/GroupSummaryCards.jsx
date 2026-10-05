@@ -3,8 +3,11 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import { formatCurrency } from '../../utils/formatters';
 import { moneyFontFamily } from '../../styles/theme';
+import { useNavigate } from 'react-router-dom';
 
 function GroupCard({ group }) {
+  const navigate = useNavigate();
+  const openGroup = () => navigate(`/groups/${group.headId}`);
   const expected = Number(group.totalExpectedThisWeek || 0);
   const collected = Number(group.totalCollectedThisWeek || 0);
   const pct = expected > 0 ? Math.min(100, Math.round((collected / expected) * 100)) : 0;
@@ -18,13 +21,28 @@ function GroupCard({ group }) {
       <Typography
         variant="subtitle1"
         noWrap
-        sx={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, mt: 1, lineHeight: 1.3 }}
+        role="link"
+        tabIndex={0}
+        onClick={openGroup}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') openGroup();
+        }}
+        sx={{
+          fontFamily: "'Source Serif 4', serif",
+          fontWeight: 700,
+          mt: 1,
+          lineHeight: 1.3,
+          cursor: 'pointer',
+          width: 'fit-content',
+          maxWidth: '100%',
+          '&:hover': { textDecoration: 'underline', textDecorationColor: '#E31E24', textDecorationThickness: '1.5px' },
+        }}
       >
         {group.headName || '—'}
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
         <StarRoundedIcon sx={{ fontSize: 15, color: 'secondary.main', flexShrink: 0 }} />
-        <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: 'secondary.main', letterSpacing: 0.2 }}>
+        <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: 'text.primary', letterSpacing: 0.2 }}>
           {group.centerPlace || '—'}
         </Typography>
       </Box>

@@ -156,7 +156,27 @@ export default function ReportsSection() {
 
   return (
     <Box>
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }} className="no-print">
+      <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          className="no-print"
+          sx={{
+            mb: 2,
+            // underline under the active tab
+            '& .MuiTabs-indicator': { bgcolor: '#47492ff8', height: 3 },
+            // inactive tabs
+            '& .MuiTab-root': {
+              color: 'text.secondary',
+              fontWeight: 500,
+              '&:hover': { color: 'text.primary' },
+            },
+            // active tab (red in light mode, brighter red in dark mode so it stays visible)
+            '& .MuiTab-root.Mui-selected': {
+              color: (theme) => (theme.palette.mode === 'dark' ? '#dddfd5f8' : '#47492ff8'),
+              fontWeight: 600,
+            },
+          }}
+        >
         <Tab label="Weekly" value="weekly" />
         <Tab label="Monthly" value="monthly" />
         <Tab label="Yearly" value="yearly" />
@@ -276,7 +296,13 @@ export default function ReportsSection() {
                 Due: {formatCurrency(report.totalDue)}
               </Typography>
             </Box>
-            <Stack direction="row" spacing={1} className="no-print">
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              className="no-print"
+              sx={{ alignSelf: 'center' }}
+            >
             <Button
               size="small"
               startIcon={<PictureAsPdfRoundedIcon />}
@@ -284,7 +310,7 @@ export default function ReportsSection() {
               sx={{
                 fontWeight: 600,
                 fontSize: '0.85rem',
-                color: '#11817a'
+                color: '#534e4e'
               }}
             >
               Export PDF
@@ -297,7 +323,7 @@ export default function ReportsSection() {
               sx={{
                 fontWeight: 600,
                 fontSize: '0.85rem',
-                color: '#11817a'
+                color: '#534e4e'
               }}
             >
               Export Excel
@@ -310,7 +336,7 @@ export default function ReportsSection() {
               sx={{
                 fontWeight: 600,
                 fontSize: '0.85rem',
-                color: '#11817a'
+                color: '#534e4e'
               }}
             >
               Print

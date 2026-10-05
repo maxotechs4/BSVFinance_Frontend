@@ -40,7 +40,7 @@ export default function DashboardPage() {
   return (
     <Box>
       <Typography variant="h5" sx={{ mb: 2 }}>
-        Welcome to BSV Foundation Management Dashboard
+        Welcome to BSV Finance Management Dashboard
       </Typography>
 
       {error && (

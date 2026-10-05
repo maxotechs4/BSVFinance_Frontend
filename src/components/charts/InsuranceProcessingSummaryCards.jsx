@@ -4,13 +4,39 @@ import HealthAndSafetyRoundedIcon from '@mui/icons-material/HealthAndSafetyRound
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import { formatCurrency } from '../../utils/formatters';
-import { moneyFontFamily } from '../../styles/theme';
+import { moneyFontFamily, brandColors } from '../../styles/theme';
+
+// Shrinks the font as the amount gets longer so every digit stays visible
+function getValueFontSize(value) {
+  const length = String(value).length;
+  if (length > 18) return '0.85rem';
+  if (length > 15) return '0.95rem';
+  if (length > 13) return '1.1rem';
+  if (length > 11) return '1.25rem';
+  return '1.5rem';
+}
 
 function Card({ icon: Icon, label, value, accent }) {
   return (
-    <Paper variant="outlined" sx={{ p: 2, height: '100%', position: 'relative', overflow: 'hidden' }}>
-      <Box sx={{ position: 'absolute', top: 0, left: 0, width: 34, height: 3, bgcolor: 'primary.main' }} />
-      <Box sx={{ position: 'absolute', top: 0, left: 38, width: 12, height: 3, bgcolor: 'secondary.main' }} />
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 2,
+        height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'border-color 0.2s, box-shadow 0.2s',
+        '&:hover': {
+          borderColor: brandColors.teal700,
+          boxShadow: '0 2px 10px rgba(227,30,36,0.12)',
+        },
+      }}
+    >
+      {/* Logo-colored accent stripe: black + red */}
+      <Box sx={{ position: 'absolute', top: 0, left: 0, width: 34, height: 3, bgcolor: brandColors.teal900 }} />
+      <Box sx={{ position: 'absolute', top: 0, left: 38, width: 12, height: 3, bgcolor: brandColors.teal700 }} />
+
+      {/* Row 1: icon + label */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1 }}>
         <Box
           sx={{
@@ -20,22 +46,38 @@ function Card({ icon: Icon, label, value, accent }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            bgcolor: 'action.hover',
-            color: accent || 'text.secondary',
+            bgcolor: brandColors.teal900,
+            color: brandColors.teal300,
+            border: '1px solid',
+            borderColor: 'divider',
             flexShrink: 0,
           }}
         >
           <Icon fontSize="small" />
         </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
-            {label}
-          </Typography>
-          <Typography variant="h5" noWrap sx={{ fontFamily: moneyFontFamily, fontWeight: 500, mt: 0.5, color: accent || 'text.primary' }}>
-            {value}
-          </Typography>
-        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>
+          {label}
+        </Typography>
       </Box>
+
+      {/* Row 2: amount on its own line, full card width, never truncated */}
+      <Typography
+        variant="h5"
+        sx={{
+          fontFamily: moneyFontFamily,
+          fontWeight: 500,
+          mt: 1.5,
+          fontSize: getValueFontSize(value),
+          lineHeight: 1.3,
+          whiteSpace: 'normal',
+          overflow: 'visible',
+          textOverflow: 'clip',
+          overflowWrap: 'anywhere',
+          color: accent || 'text.primary',
+        }}
+      >
+        {value}
+      </Typography>
     </Paper>
   );
 }

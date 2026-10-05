@@ -8,7 +8,16 @@ export const AuthContext = createContext(null);
 function readStoredUser() {
   try {
     const raw = localStorage.getItem(USER_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    const stored = raw ? JSON.parse(raw) : null;
+
+    // Viewer role removed: wipe any leftover viewer session.
+    if (stored?.role === 'VIEWER') {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(USER_STORAGE_KEY);
+      return null;
+    }
+
+    return stored;
   } catch {
     return null;
   }
@@ -16,7 +25,9 @@ function readStoredUser() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser);
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY));
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
+  });
   const [initializing, setInitializing] = useState(false);
 
   const logout = useCallback(() => {
@@ -44,14 +55,21 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async (username, password) => {
-    setInitializing(true);
-    try {
-      const data = await authService.login(username, password);
-      return applySession(data);
-    } finally {
-      setInitializing(false);
+  setInitializing(true);
+  try {
+    const data = await authService.login(username, password);
+
+    // The Viewer role has been removed. Even if the server still accepts
+    // these credentials, never start a session — show the normal error.
+    if (data?.role === 'VIEWER') {
+      throw new Error('Invalid username or password');
     }
-  }, [applySession]);
+
+    return applySession(data);
+  } finally {
+    setInitializing(false);
+  }
+}, [applySession]);
 
   const value = useMemo(
     () => ({

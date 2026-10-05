@@ -14,12 +14,23 @@ import { savingsPaymentService } from '../services/savingsPaymentService';
 import { extractErrorMessage } from '../services/apiClient';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency, formatDate } from '../utils/formatters';
-import { moneyFontFamily } from '../styles/theme';
+import { moneyFontFamily, brandColors } from '../styles/theme';
 import StatusChip from '../components/common/StatusChip';
 import PaymentMethodBadge from '../components/common/PaymentMethodBadge';
 import SavingsPaymentFormDialog from '../components/savings/SavingsPaymentFormDialog';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+
+const headerChipSx = {
+  height: 26,
+  fontFamily: 'inherit',
+  fontSize: '0.8125rem',
+  fontWeight: 600,
+  letterSpacing: 0.2,
+  bgcolor: 'transparent',
+  borderWidth: 1,
+  borderStyle: 'solid',
+};
 
 function DetailItem({ label, value }) {
   if (!value) return null;
@@ -111,9 +122,39 @@ export default function SavingsMemberProfilePage() {
           <ArrowBackRoundedIcon />
         </IconButton>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>{member.name}</Typography>
-        <Chip label={member.memberCode} size="small" sx={{ fontFamily: moneyFontFamily }} />
-        <Chip label={member.status} size="small" color={member.status === 'ACTIVE' ? 'success' : 'default'} />
-        {member.place && <Chip label={member.place} size="small" variant="outlined" />}
+        <Chip 
+          label={member.memberCode} 
+          size="small" 
+          variant="outlined"
+          sx={{
+            ...headerChipSx,
+            color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+            borderColor: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+            }} 
+          />
+        {member.place && (
+          <Chip
+            label={member.place}
+            size="small"
+            variant="outlined"
+            sx={{
+              ...headerChipSx,
+              color: brandColors.teal700,
+              borderColor: brandColors.teal700,
+            }}
+          />
+        )}
+        <Chip 
+          label={member.status} 
+          size="small" variant="outlined"
+          sx={{
+            ...headerChipSx,
+            color:
+              member.status === 'ACTIVE' ? '#2E9E45' : member.status === 'CLOSED' ? '#E31E24' : 'text.secondary',
+            borderColor:
+              member.status === 'ACTIVE' ? '#2E9E45' : member.status === 'CLOSED' ? '#E31E24' : 'text.secondary',
+          }} 
+        />
         <Box sx={{ flex: 1 }} />
         <Button variant="contained" startIcon={<AddCardRoundedIcon />}
           onClick={() => setPaymentDialog({ open: true, payment: null })}>
@@ -186,33 +227,33 @@ export default function SavingsMemberProfilePage() {
           <TableHead>
             <TableRow>
               <TableCell>Installment</TableCell>
-              <TableCell align="right">Paid</TableCell>
-              <TableCell align="right">Remaining</TableCell>
+              <TableCell>Paid</TableCell>
+              <TableCell>Remaining</TableCell>
               <TableCell>Method</TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell align="center">Actions</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {payments.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={8} sx={{ py: 4 }}>
                   <Typography variant="body2" color="text.secondary">No payments recorded yet</Typography>
                 </TableCell>
               </TableRow>
             )}
             {payments.map((payment) => (
               <TableRow key={payment.id} hover>
-                <TableCell>#{payment.installmentNumber}</TableCell>
-                <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>{formatCurrency(payment.amountPaid)}</TableCell>
-                <TableCell align="right" sx={{ fontFamily: moneyFontFamily, color: payment.remainingAmount > 0 ? 'error.main' : 'text.secondary' }}>
+                <TableCell>{payment.installmentNumber}</TableCell>
+                <TableCell sx={{ fontFamily: moneyFontFamily }}>{formatCurrency(payment.amountPaid)}</TableCell>
+                <TableCell sx={{ fontFamily: moneyFontFamily, color: payment.remainingAmount > 0 ? 'error.main' : 'text.secondary' }}>
                   {formatCurrency(payment.remainingAmount)}
                 </TableCell>
                 <TableCell><PaymentMethodBadge method={payment.paymentMethod} /></TableCell>
                 <TableCell>{formatDate(payment.paymentDate)}</TableCell>
                 <TableCell><StatusChip status={payment.status} /></TableCell>
-                <TableCell align="center">
+                <TableCell>
                   <Tooltip title="Edit payment">
                     <IconButton size="small" onClick={() => setPaymentDialog({ open: true, payment })}>
                       <EditRoundedIcon fontSize="small" />

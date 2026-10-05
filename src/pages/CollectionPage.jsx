@@ -40,6 +40,16 @@ import StatusChip from '../components/common/StatusChip';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 
+// Black action icons in light mode (white in dark mode so they stay visible)
+const blackIconSx = {
+  color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : '#060606'),
+  '&:hover': {
+    bgcolor: (theme) =>
+      theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+  },
+};
+
+
 const GROUP_INDEX_STORAGE_KEY =
   'mfms_collection_group_index';
 
@@ -53,9 +63,6 @@ export default function CollectionPage() {
   } = useToast();
 
   const { user } = useAuth();
-
-  const isViewer =
-    user?.role === 'VIEWER';
 
 
   // ─────────────────────────────────────────────
@@ -1117,23 +1124,13 @@ export default function CollectionPage() {
           Collection
         </Typography>
 
-
-        {!isViewer && (
-          <Button
-            variant="contained"
-            startIcon={
-              <AddRoundedIcon />
-            }
-            onClick={() =>
-              setMemberDialog({
-                open: true,
-                member: null,
-              })
-            }
-          >
-            Create member
-          </Button>
-        )}
+        <Button
+          variant="contained"
+          startIcon={<AddRoundedIcon />}
+          onClick={() => setMemberDialog({ open: true, member: null })}
+        >
+          Create member
+        </Button>
       </Box>
 
 
@@ -1327,6 +1324,7 @@ export default function CollectionPage() {
                 direction="row"
                 spacing={1}
                 alignItems="center"
+                sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: 0 }}
               >
 
                 <Tooltip title="Previous group">
@@ -1350,7 +1348,8 @@ export default function CollectionPage() {
 
                 <Box
                   sx={{
-                    minWidth: 220,
+                    minWidth: 0,
+                    flex: { xs: 1, sm: '0 1 auto' },
                   }}
                 >
                   <Typography
@@ -1399,11 +1398,11 @@ export default function CollectionPage() {
 
 
               {/* JUMP TO GROUP */}
-              <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" rowGap={1}>
+              <Stack direction="row" alignItems="center" flexWrap="wrap" sx={{ gap: 1.5, width: { xs: '100%', sm: 'auto' } }}>
                 <Autocomplete
                   size="small"
                   sx={{
-                    minWidth: 280,
+                    width: { xs: '100%', sm: 280 },
                   }}
                   options={groups}
                   value={
@@ -1446,18 +1445,19 @@ export default function CollectionPage() {
                   sx={{ width: 140 }}
                   value={groupInterest}
                   onChange={(e) => setGroupInterest(e.target.value)}
-                  disabled={!currentGroup || isViewer}
+                  disabled={!currentGroup}
                   slotProps={{ input: { endAdornment: <InputAdornment position="end">%</InputAdornment> } }}
                 />
 
                 <Tooltip title="Apply this interest rate to every member in the group and recalculate Outstanding Amount">
                   <span>
                     <IconButton
-                      color="primary"
-                      disabled={!currentGroup || isViewer || savingInterest || groupInterest === ''}
+                      size="small"
+                      sx={{ ...blackIconSx, position: 'relative', top: '4px' }}
+                      disabled={!currentGroup || savingInterest || groupInterest === ''}
                       onClick={handleSaveGroupInterest}
                     >
-                      {savingInterest ? <CircularProgress size={20} /> : <SaveRoundedIcon fontSize="small" />}
+                      {savingInterest ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : <SaveRoundedIcon fontSize="small" />}
                     </IconButton>
                   </span>
                 </Tooltip>
@@ -1474,11 +1474,18 @@ export default function CollectionPage() {
                 />
 
 
-                <Stack
-                  direction="row"
-                  spacing={3}
-                  flexWrap="wrap"
-                  rowGap={1}
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: 'repeat(2, minmax(0, 1fr))',
+                      sm: 'repeat(3, minmax(0, 1fr))',
+                      md: 'repeat(5, auto)',
+                    },
+                    justifyContent: { md: 'start' },
+                    columnGap: { xs: 2, md: 4 },
+                    rowGap: 1.5,
+                  }}
                 >
 
                   <Typography
@@ -1563,7 +1570,7 @@ export default function CollectionPage() {
                     </strong>
                   </Typography>
 
-                </Stack>
+                </Box>
               </>
             )}
           </Paper>
@@ -1612,49 +1619,28 @@ export default function CollectionPage() {
                     'auto',
                 }}
               >
+
                 <Table
                   size="small"
                   sx={{
-                    minWidth: 980,
+                    tableLayout: 'fixed',   // columns use exactly the widths set in the header
+                    width: '100%',
+                    minWidth: 1230,         // total of all column widths below
+                    '& .MuiTableCell-root': { px: 2 },
                   }}
                 >
 
                   {/* TABLE HEADER */}
                   <TableHead>
                     <TableRow>
-
-                      <TableCell>
-                        Member
-                      </TableCell>
-
-                      <TableCell>
-                        Week
-                      </TableCell>
-
-                      <TableCell align="right">
-                        Weekly amount
-                      </TableCell>
-
-                      <TableCell align="right">
-                        Pending
-                      </TableCell>
-
-                      <TableCell>
-                        Status
-                      </TableCell>
-
-                      <TableCell>
-                        Amount paid
-                      </TableCell>
-
-                      <TableCell>
-                        Method
-                      </TableCell>
-
-                      <TableCell>
-                        Actions
-                      </TableCell>
-
+                      <TableCell sx={{ width: 180 }}>Member</TableCell>
+                      <TableCell sx={{ width: 160 }}>Week</TableCell>
+                      <TableCell sx={{ width: 170 }}>Weekly amount</TableCell>
+                      <TableCell sx={{ width: 140 }}>Pending</TableCell>
+                      <TableCell sx={{ width: 120 }}>Status</TableCell>
+                      <TableCell sx={{ width: 180 }}>Amount paid</TableCell>
+                      <TableCell sx={{ width: 170 }}>Method</TableCell>
+                      <TableCell sx={{ width: 150 }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
 
@@ -1778,7 +1764,6 @@ export default function CollectionPage() {
 
                             {/* WEEKLY AMOUNT */}
                             <TableCell
-                              align="right"
                               sx={{
                                 fontFamily:
                                   moneyFontFamily,
@@ -1792,7 +1777,6 @@ export default function CollectionPage() {
 
                             {/* PENDING */}
                             <TableCell
-                              align="right"
                               sx={{
                                 fontFamily:
                                   moneyFontFamily,
@@ -1980,7 +1964,7 @@ export default function CollectionPage() {
                                   <span>
                                     <IconButton
                                       size="small"
-                                      color="primary"
+                                      sx={blackIconSx}
                                       disabled={
                                         savingId ===
                                         member.id
@@ -2001,6 +1985,7 @@ export default function CollectionPage() {
                                 <Tooltip title="Payment history">
                                   <IconButton
                                     size="small"
+                                    sx={blackIconSx}
                                     onClick={() =>
                                       navigate(
                                         `/collection/${member.id}`
@@ -2016,6 +2001,7 @@ export default function CollectionPage() {
                                 <Tooltip title="Edit member">
                                   <IconButton
                                     size="small"
+                                    sx={blackIconSx}
                                     onClick={() =>
                                       setMemberDialog(
                                         {

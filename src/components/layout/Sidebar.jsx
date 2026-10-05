@@ -78,12 +78,20 @@ export default function Sidebar({ open, variant = 'permanent', onClose }) {
         },
       }}
     >
-      <Box sx={{ px: showLabels ? 2.5 : 1.5, py: 1.24, display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ px: showLabels ? 2 : 1, py: 0.5, display: 'flex', alignItems: 'center', gap: 1.25 }}>
         <Box
           component="img"
           src={logo}
           alt="Anbu Foundation logo"
-          sx={{ width: 43, height: 45, borderRadius: '50%', objectFit: 'contain', flexShrink: 0, overflow: 'visible' }}
+          sx={{
+            width: showLabels ? 56 : 44,   // smaller when the sidebar is collapsed so it fits the 72px rail
+            height: showLabels ? 56 : 44,
+            borderRadius: '50%',
+            objectFit: 'contain',
+            flexShrink: 0,
+            overflow: 'visible',
+            transition: 'width 0.2s, height 0.2s',
+          }}
         />
         {showLabels && (
           <Box sx={{ overflow: 'hidden' }}>
@@ -113,7 +121,12 @@ export default function Sidebar({ open, variant = 'permanent', onClose }) {
                   color: '#FFFFFF',
                   borderLeft: (theme) => `3px solid ${theme.palette.secondary.main}`,
                 },
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.08)' },
+                '&.active:hover': {
+                  bgcolor: 'primary.light',
+                  color: '#FFFFFF',
+                  boxShadow: 'none',
+                },
               }}
             >
               <ListItemIcon sx={{ minWidth: showLabels ? 36 : 'auto', color: 'inherit' }}>
@@ -149,8 +162,19 @@ export default function Sidebar({ open, variant = 'permanent', onClose }) {
         </Tooltip>
         {showLabels && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, px: 1 }}>
-            <Avatar sx={{ width: 26, height: 26, fontSize: 12, bgcolor: 'rgba(255,255,255,0.15)' }}>
-              {(user?.fullName || user?.username || 'A').charAt(0).toUpperCase()}
+            <Avatar
+              sx={{
+                width: 30,
+                height: 30,
+                fontSize: 14,
+                fontWeight: 700,
+                bgcolor: '#1F1F1F',
+                color: '#fffffe',
+              }}
+            >
+              {user?.role === 'ADMIN'
+                ? 'A'
+                : (user?.fullName || user?.username || 'A').charAt(0).toUpperCase()}
             </Avatar>
             <Box sx={{ overflow: 'hidden' }}>
               <Typography variant="caption" noWrap sx={{ display: 'block', color: '#FFFFFF' }}>

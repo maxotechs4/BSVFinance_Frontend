@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import CollectionPage from './pages/CollectionPage';
+import GroupDetailPage from './pages/GroupDetailPage';
 import MemberProfilePage from './pages/MemberProfilePage';
 import SavingsPage from './pages/SavingsPage';
 import SavingsMemberProfilePage from './pages/SavingsMemberProfilePage';
@@ -20,6 +21,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/groups/:headId" element={<GroupDetailPage />} />
           <Route path="/collection" element={<CollectionPage />} />
           <Route path="/collection/:id" element={<MemberProfilePage />} />
           <Route path="/savings" element={<SavingsPage />} />

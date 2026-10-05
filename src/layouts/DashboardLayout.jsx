@@ -19,7 +19,9 @@ export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
-  const title = PAGE_TITLES[location.pathname] || 'Microfinance Management System';
+  const title =
+    PAGE_TITLES[location.pathname] ||
+    (location.pathname.startsWith('/groups/') ? 'Group Details' : 'Microfinance Management System');
   const sidebarOpen = isDesktop ? desktopOpen : mobileOpen;
 
   const handleToggle = () => {
@@ -43,7 +45,7 @@ export default function DashboardLayout() {
           flexGrow: 1,
           minWidth: 0,
           width: '100%',
-          maxWidth: '100vw',
+          maxWidth: '100%',
           overflowX: 'hidden',
           transition: (theme) => theme.transitions.create('margin', { duration: 220 }),
         }}

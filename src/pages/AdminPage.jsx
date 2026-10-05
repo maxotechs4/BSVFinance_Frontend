@@ -36,7 +36,7 @@ import { capitalService } from '../services/capitalService';
 import { extractErrorMessage } from '../services/apiClient';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency, todayIso } from '../utils/formatters';
-import { moneyFontFamily } from '../styles/theme';
+import { moneyFontFamily, brandColors } from '../styles/theme';
 
 import MemberFormDialog from '../components/members/MemberFormDialog';
 import MemberChargesDialog from '../components/members/MemberChargesDialog';
@@ -44,6 +44,26 @@ import SummaryCards from '../components/charts/SummaryCards';
 import InsuranceProcessingSummaryCards from '../components/charts/InsuranceProcessingSummaryCards';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+
+// ---- Brand styling (logo colors: black / red / yellow) ----
+const sectionTitleSx = {
+  mb: 2,
+  pl: 1.5,
+  lineHeight: 1.3,
+  borderLeft: `4px solid ${brandColors.teal700}`,
+};
+
+const tableHeadSx = {
+  '& .MuiTableCell-head': {
+    bgcolor: brandColors.teal900,
+    color: '#FFFFFF',
+    borderBottom: `3px solid ${brandColors.teal700}`,
+  },
+};
+
+const brandButtonSx = {
+  '&:hover': { bgcolor: brandColors.teal700 },
+};
 
 const EMPTY_ENTRY_FORM = { type: 'INCOME', amount: '', purpose: '', transactionDate: todayIso() };
 
@@ -499,7 +519,7 @@ export default function AdminPage() {
       </Typography>
 
       {/* ── Total Collection Details (moved here from the Dashboard page) ── */}
-      <Typography variant="h6" sx={{ mb: 2 }} className="no-print">
+      <Typography variant="h6" sx={sectionTitleSx} className="no-print">
         Total Collection Details
       </Typography>
 
@@ -516,7 +536,7 @@ export default function AdminPage() {
       )}
 
       {/* ── Capital Amount ── */}
-      <Typography variant="h6" sx={{ mb: 2 }} className="no-print">
+      <Typography variant="h6" sx={sectionTitleSx} className="no-print">
         Capital Amount
       </Typography>
 
@@ -549,7 +569,7 @@ export default function AdminPage() {
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                 Used From Collection
               </Typography>
-              <Typography variant="h6" sx={{ fontFamily: moneyFontFamily, color: 'warning.main' }}>
+              <Typography variant="h6" sx={{ fontFamily: moneyFontFamily, color: (theme) => (theme.palette.mode === 'dark' ? brandColors.amber : brandColors.amberDark) }}>
                 {formatCurrency(capital?.collectionUtilized)}
               </Typography>
             </Grid>
@@ -579,7 +599,7 @@ export default function AdminPage() {
               sx={{ width: { xs: '100%', sm: 220 } }}
               slotProps={{ input: { startAdornment: <InputAdornment position="start">₹</InputAdornment> } }}
             />
-            <Button type="submit" variant="contained" startIcon={<SaveRoundedIcon />} disabled={capitalSaving}>
+            <Button type="submit" variant="contained" sx={brandButtonSx} startIcon={<SaveRoundedIcon />} disabled={capitalSaving}>
               {capitalSaving ? 'Saving...' : 'Add'}
             </Button>
           </Box>
@@ -587,7 +607,7 @@ export default function AdminPage() {
       )}
 
       {/* ── Income / Expense Entry Form ── */}
-      <Typography variant="h6" sx={{ mb: 2 }} className="no-print">
+      <Typography variant="h6" sx={sectionTitleSx} className="no-print">
         Entry Form (Income / Expense)
       </Typography>
 
@@ -649,7 +669,7 @@ export default function AdminPage() {
                 </Grid>
 
                 <Grid size={12}>
-                  <Button type="submit" variant="contained" color="primary" startIcon={<SaveRoundedIcon />} disabled={entrySubmitting}>
+                  <Button type="submit" variant="contained" color="primary" sx={brandButtonSx} startIcon={<SaveRoundedIcon />} disabled={entrySubmitting}>
                     {editingEntryId ? 'Update Entry' : 'Save Entry'}
                   </Button>
                   {editingEntryId && (
@@ -682,8 +702,8 @@ export default function AdminPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: 'action.hover',
-        color: 'success.main',
+        bgcolor: brandColors.teal900,
+        color: brandColors.teal300,
         flexShrink: 0,
       }}
     >
@@ -734,13 +754,13 @@ export default function AdminPage() {
       ) : (
         <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }} className="no-print">
           <Table size="small">
-            <TableHead>
+            <TableHead sx={tableHeadSx}>
               <TableRow>
                 <TableCell>Date</TableCell>
                 <TableCell>Type</TableCell>
-                <TableCell align="right">Amount</TableCell>
+                <TableCell>Amount</TableCell>
                 <TableCell>Purpose / Reason</TableCell>
-                <TableCell align="center">Actions</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -763,7 +783,6 @@ export default function AdminPage() {
                     />
                   </TableCell>
                   <TableCell
-                    align="right"
                     sx={{
                       fontFamily: moneyFontFamily,
                       color: entry.type === 'INCOME' ? 'success.main' : 'error.main',
@@ -772,7 +791,7 @@ export default function AdminPage() {
                     {entry.type === 'INCOME' ? '+' : '-'}{formatCurrency(entry.amount)}
                   </TableCell>
                   <TableCell>{entry.purpose || '-'}</TableCell>
-                  <TableCell align="center">
+                  <TableCell>
                     <Tooltip title="Edit entry">
                       <IconButton size="small" onClick={() => handleEditEntry(entry)}>
                         <EditRoundedIcon fontSize="small" />
@@ -793,7 +812,7 @@ export default function AdminPage() {
 
 
       {/* ── Insurance & Processing ── */}
-      <Typography variant="h6" sx={{ mb: 2 }} className="no-print">
+      <Typography variant="h6" sx={sectionTitleSx} className="no-print">
         Insurance &amp; Processing Amount Collection
       </Typography>
 
@@ -810,7 +829,7 @@ export default function AdminPage() {
       )}
 
       {/* ── Insurance & Processing Entry Form ── */}
-      <Typography variant="h6" sx={{ mb: 2 }} className="no-print">
+      <Typography variant="h6" sx={sectionTitleSx} className="no-print">
         Entry Form (Insurance / Processing)
       </Typography>
 
@@ -846,7 +865,7 @@ export default function AdminPage() {
                 </Grid>
 
                 <Grid size={12}>
-                  <Button type="submit" variant="contained" color="primary" startIcon={<SaveRoundedIcon />}>
+                  <Button type="submit" variant="contained" color="primary" sx={brandButtonSx} startIcon={<SaveRoundedIcon />}>
                     {piEditingEntryId ? 'Update Entry' : 'Save Entry'}
                   </Button>
                   {piEditingEntryId && (
@@ -868,11 +887,11 @@ export default function AdminPage() {
         className="no-print"
       >
         <Table size="small">
-          <TableHead>
+          <TableHead sx={tableHeadSx}>
             <TableRow>
-              <TableCell align="right" sx={{ width: 120 }}>Amount</TableCell>
-              <TableCell align="center" sx={{ width: 400 }}>Purpose</TableCell>
-              <TableCell align="center">Actions</TableCell>
+              <TableCell sx={{ width: 380 }}>Amount</TableCell>
+              <TableCell sx={{ width: 400 }}>Purpose</TableCell>
+              <TableCell sx={{ width: 120 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -885,13 +904,13 @@ export default function AdminPage() {
             )}
             {piEntries.map((entry) => (
               <TableRow key={entry.id} hover selected={piEditingEntryId === entry.id}>
-                <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>
+                <TableCell sx={{ fontFamily: moneyFontFamily }}>
                   {formatCurrency(entry.amount)}
                 </TableCell>
-                <TableCell align="center">
+                <TableCell>
                   {entry.category}
                 </TableCell>
-                <TableCell align="center">
+                <TableCell>
                   <Tooltip title="Edit entry">
                     <IconButton size="small" onClick={() => handlePiEditEntry(entry)}>
                       <EditRoundedIcon fontSize="small" />
@@ -910,7 +929,7 @@ export default function AdminPage() {
       </TableContainer>
 
       {/* ── Loan Outstanding Amounts ── */}
-      <Typography variant="h6" sx={{ mb: 2 }} className="no-print">
+      <Typography variant="h6" sx={sectionTitleSx} className="no-print">
         Loan Outstanding Amounts
       </Typography>
 
@@ -941,17 +960,17 @@ export default function AdminPage() {
       ) : (
         <Box className="no-print" sx={{ mb: 2 }}>
           <TableContainer component={Paper} variant="outlined">
-            <Table size="small" sx={{ minWidth: 1350 }}>
-              <TableHead>
+            <Table size="small" sx={{ minWidth: 1100, '& .MuiTableCell-root': { px: 2 }, }}>
+              <TableHead sx={tableHeadSx}>
                 <TableRow>
-                  <TableCell>Member ID</TableCell>
-                  <TableCell>Member Name</TableCell>
-                  <TableCell>Center Place</TableCell>
-                  <TableCell align="right">Loan Amount</TableCell>
-                  <TableCell align="right">Total Weeks</TableCell>
-                  <TableCell align="right">Interest(%)</TableCell>
-                  <TableCell align="right">Without Interest</TableCell>
-                  <TableCell align="right">With Interest</TableCell>
+                  <TableCell sx={{ width: 110 }}>Member ID</TableCell>
+                  <TableCell sx={{ width: 180 }}>Member Name</TableCell>
+                  <TableCell sx={{ width: 110 }}>Center Place</TableCell>
+                  <TableCell sx={{ width: 110 }}>Loan Amount</TableCell>
+                  <TableCell sx={{ width: 110 }}>Total Weeks</TableCell>
+                  <TableCell sx={{ width: 110 }}>Interest(%)</TableCell>
+                  <TableCell sx={{ width: 110 }}>Without Interest</TableCell>
+                  <TableCell sx={{ width: 110 }}>With Interest</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -966,25 +985,46 @@ export default function AdminPage() {
                   <TableRow key={member.id} hover>
                     <TableCell>{member.memberCode}</TableCell>
                     <TableCell>
-                      {member.name}
-                      {member.headMember && (
-                        <Chip icon={<StarRoundedIcon />} label="HEAD" size="small" color="warning" sx={{ ml: 1 }} />
-                      )}
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {/* Fixed-width name box so every HEAD chip lines up in a straight column */}
+                        <Box
+                          component="span"
+                          sx={{ width: 90, flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        >
+                          {member.name}
+                        </Box>
+                        {member.headMember && (
+                          <Chip
+                            icon={<StarRoundedIcon />}
+                            size="small"
+                            sx={{
+                              ml: 1,
+                              fontWeight: 600,
+                              bgcolor: brandColors.teal300,
+                              color: brandColors.teal900,
+                              '& .MuiChip-icon': { color: brandColors.teal900, mx: '6px' },
+                              '& .MuiChip-label': {
+                                display: 'none',  // remove the empty label's padding
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>{member.centerPlace || '-'}</TableCell>
-                    <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>
+                    <TableCell sx={{ fontFamily: moneyFontFamily }}>
                       {formatCurrency(member.loanAmount)}
                     </TableCell>
-                    <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>
+                    <TableCell sx={{ fontFamily: moneyFontFamily }}>
                       {member.totalWeeks ?? '-'}
                     </TableCell>
-                    <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>
+                    <TableCell sx={{ fontFamily: moneyFontFamily }}>
                       {member.interestPercentage != null ? `${member.interestPercentage}%` : '-'}
                     </TableCell>
-                    <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>
+                    <TableCell sx={{ fontFamily: moneyFontFamily }}>
                       {formatCurrency(member.outstandingAmount)}
                     </TableCell>
-                    <TableCell align="right" sx={{ fontFamily: moneyFontFamily }}>
+                    <TableCell sx={{ fontFamily: moneyFontFamily }}>
                       {formatCurrency(member.outstandingAmountWithInterest)}
                     </TableCell>
                   </TableRow>

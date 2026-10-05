@@ -1,44 +1,16 @@
 import axios from 'axios';
-import { API_BASE_URL, TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from '../utils/constants';
+import { API_BASE_URL, TOKEN_STORAGE_KEY } from '../utils/constants';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-const WRITE_METHODS = new Set(['post', 'put', 'patch', 'delete']);
-
-function isViewOnlyUser() {
-  try {
-    const raw = localStorage.getItem(USER_STORAGE_KEY);
-    const user = raw ? JSON.parse(raw) : null;
-    return user?.role === 'VIEWER';
-  } catch {
-    return false;
-  }
-}
-
-class ViewOnlyError extends Error {
-  constructor() {
-    super('Your account has view-only access. Editing is disabled.');
-    this.name = 'ViewOnlyError';
-  }
-}
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_STORAGE_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  // Belt-and-braces client-side guard for view-only accounts: the backend
-  // (SecurityConfig) rejects every mutating request for this role too, so
-  // this just fails fast without a round-trip and gives a clear message.
-  // /auth/** (logout, change-password) is exempt — every role needs those.
-  const method = (config.method || 'get').toLowerCase();
-  const isAuthEndpoint = (config.url || '').includes('/auth/');
-  if (WRITE_METHODS.has(method) && !isAuthEndpoint && isViewOnlyUser()) {
-    return Promise.reject(new ViewOnlyError());
   }
 
   return config;
