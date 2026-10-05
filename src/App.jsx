@@ -4,8 +4,6 @@ import DashboardPage from './pages/DashboardPage';
 import CollectionPage from './pages/CollectionPage';
 import GroupDetailPage from './pages/GroupDetailPage';
 import MemberProfilePage from './pages/MemberProfilePage';
-import SavingsPage from './pages/SavingsPage';
-import SavingsMemberProfilePage from './pages/SavingsMemberProfilePage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
@@ -24,8 +22,6 @@ export default function App() {
           <Route path="/groups/:headId" element={<GroupDetailPage />} />
           <Route path="/collection" element={<CollectionPage />} />
           <Route path="/collection/:id" element={<MemberProfilePage />} />
-          <Route path="/savings" element={<SavingsPage />} />
-          <Route path="/savings/:id" element={<SavingsMemberProfilePage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
 
