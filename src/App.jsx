@@ -3,8 +3,6 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import CollectionPage from './pages/CollectionPage';
 import MemberProfilePage from './pages/MemberProfilePage';
-import SavingsPage from './pages/SavingsPage';
-import SavingsMemberProfilePage from './pages/SavingsMemberProfilePage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
@@ -22,8 +20,6 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/collection" element={<CollectionPage />} />
           <Route path="/collection/:id" element={<MemberProfilePage />} />
-          <Route path="/savings" element={<SavingsPage />} />
-          <Route path="/savings/:id" element={<SavingsMemberProfilePage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
 

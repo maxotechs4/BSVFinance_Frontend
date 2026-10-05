@@ -5,6 +5,8 @@ import { apiClient } from './apiClient';
 export const staffService = {
   list: () => apiClient.get('/staff').then((res) => res.data.data),
 
+  summary: () => apiClient.get('/staff/summary').then((res) => res.data.data),
+
   getById: (id) => apiClient.get(`/staff/${id}`).then((res) => res.data.data),
 
   create: (payload) => apiClient.post('/staff', payload).then((res) => res.data.data),

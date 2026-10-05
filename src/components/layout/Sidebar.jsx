@@ -12,8 +12,6 @@ import {
   Divider,
 } from '@mui/material';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-import PaidRoundedIcon from '@mui/icons-material/PaidRounded';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
@@ -21,14 +19,13 @@ import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSetting
 import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
 import { useAuth } from '../../hooks/useAuth';
 import logo from '../../assets/logo.webp';
-
+import PaidRoundedIcon from '@mui/icons-material/PaidRounded';
 const EXPANDED_WIDTH = 240;
 const COLLAPSED_WIDTH = 72;
 
 const NAV_ITEMS = [
   { label: 'Dashboard', icon: DashboardRoundedIcon, path: '/dashboard' },
   { label: 'Collection', icon: PaidRoundedIcon, path: '/collection' },
-  { label: 'Monthly Savings', icon: AccountBalanceWalletRoundedIcon, path: '/savings' },
   { label: 'Demand', icon: AssessmentRoundedIcon, path: '/reports' },
 ];
 
